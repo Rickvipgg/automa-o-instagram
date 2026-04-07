@@ -8,72 +8,6 @@
 <title>Simulador de Sedução</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
 <style>
-/* ── MOBILE ONLY ── */
-@media (max-width: 768px) {
-
-  /* 🔥 Scroll mais suave */
-  html {
-    scroll-behavior: smooth;
-  }
-
-  body {
-    -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeLegibility;
-    overflow-x: hidden;
-  }
-
-  /* 📱 Ajuste geral de padding */
-  .page {
-    padding: 32px 16px 80px;
-  }
-
-  /* ✍️ Textos mais legíveis */
-  p, span, button {
-    font-size: 15px !important;
-    line-height: 1.6;
-  }
-
-  /* 🧠 Títulos mais proporcionais */
-  h1, h2, .hook-block p {
-    font-size: clamp(18px, 5vw, 22px) !important;
-  }
-
-  /* 🎯 Botões maiores (thumb friendly) */
-  button, .cta-btn {
-    min-height: 54px;
-    font-size: 16px;
-    border-radius: 12px;
-  }
-
-  /* 📦 Cards com mais respiro */
-  .result-card,
-  .reward-chip,
-  .xp-burst,
-  .badge-chip,
-  .teaser-strip {
-    padding: 16px !important;
-    border-radius: 16px;
-  }
-
-  /* 🎥 Vídeo mais fluido */
-  .video-player-wrap {
-    border-radius: 16px;
-  }
-
-  /* 🧼 Reduz blur pesado (melhora performance) */
-  .orb {
-    filter: blur(60px);
-    opacity: 0.7;
-  }
-
-  /* 🫧 Menos partículas = mais performance */
-  .bubble {
-    animation-duration: 18s !important;
-    opacity: 0.4 !important;
-  }
-}
- 
- <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
@@ -86,28 +20,7 @@
     --glass: rgba(255,255,255,0.04);
     --glass-border: rgba(255,255,255,0.07);
   }
-<script>
-// Detecta mobile
-const isMobile = window.innerWidth <= 768;
 
-if (isMobile) {
-
-  // 🔥 Remove animações pesadas depois de carregar
-  window.addEventListener('load', () => {
-    document.querySelectorAll('.bubble').forEach((b, i) => {
-      if (i > 5) b.remove(); // deixa só algumas
-    });
-  });
-
-  // ⚡ Reduz reflow em animações
-  document.body.style.willChange = "transform";
-
-  // 🚀 Toque mais responsivo (sem delay)
-  document.addEventListener('touchstart', () => {}, {passive: true});
-
-}
-</script>
- 
   html, body {
     height: 100%;
     background: var(--bg);
