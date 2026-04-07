@@ -536,18 +536,13 @@
   // Default is B (correct).
 
   /* ── NEXT ── */
-function nextQuestion() {
-  const page = document.querySelector('.page');
-
-  if (page) {
+  function goNext() {
     page.style.opacity = '0';
-    page.style.transition = 'opacity 0.4s ease';
-  }
-
-  setTimeout(() => {
+    page.style.transition = 'opacity .4s ease';
+    setTimeout(() => {
     window.location.href = "tela4.html";
-  }, 400);
-}
+    }, 420);
+  }
 
   /* ── PARTICLE BURST on load (good answer only) ── */
   if (d.cls === 'good') {
