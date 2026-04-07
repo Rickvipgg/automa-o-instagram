@@ -522,12 +522,14 @@
   }
 
   /* ── NEXT ── */
-  function goNext() {
-  document.body.style.opacity = '0';
-  setTimeout(() => {
-    window.location.assign("tela6.html");
-  }, 420);
-}
+ function goNext() {
+    const page = document.getElementById('mainPage');
+    page.style.opacity = '0';
+    page.style.transition = 'opacity .4s ease';
+    setTimeout(()=>{
+     // No goNext(), troca o alert por:
+window.location.href = 'tela6.html';
+    }, 420);
   }
 </script>
 </body>
