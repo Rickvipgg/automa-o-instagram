@@ -581,29 +581,36 @@
 </main>
 
 <script>
-  // Floating bubbles bg
+  // BG bubbles
   const canvas = document.getElementById('bgCanvas');
-  [120,180,90,150,200,80,140,100,160,70].forEach((w, i) => {
-    const el = document.createElement('div');
-    el.className = 'bubble';
-    el.style.cssText = `
-      width:${w}px; height:36px;
-      left:${Math.random()*90}%; top:${10+Math.random()*80}%;
-      animation-duration:${12+Math.random()*16}s;
-      animation-delay:${Math.random()*-20}s;
-      border-radius: ${i%2===0 ? '18px 18px 18px 4px' : '18px 18px 4px 18px'};
-    `;
-    canvas.appendChild(el);
-  });
 
-  // Typing → message reveal
+  if (canvas) {
+    [120,180,90,150,200,80,140,100,160,70].forEach((w, i) => {
+      const el = document.createElement('div');
+      el.className = 'bubble';
+      el.style.cssText = `
+        width:${w}px; height:36px;
+        left:${Math.random()*90}%; top:${10+Math.random()*80}%;
+        animation-duration:${12+Math.random()*16}s;
+        animation-delay:${Math.random()*-20}s;
+        border-radius: ${i%2===0 ? '18px 18px 18px 4px' : '18px 18px 4px 18px'};
+      `;
+      canvas.appendChild(el);
+    });
+  }
+
+  // Typing → message reveal (PROTEGIDO)
   setTimeout(() => {
-    document.getElementById('typingRow').style.display = 'none';
-    document.getElementById('msgRow').style.display = 'flex';
-    document.getElementById('msgTime').style.display = 'block';
+    const typing = document.getElementById('typingRow');
+    const msg = document.getElementById('msgRow');
+    const time = document.getElementById('msgTime');
+
+    if (typing) typing.style.display = 'none';
+    if (msg) msg.style.display = 'flex';
+    if (time) time.style.display = 'block';
   }, 1800);
 
-  // Select option logic
+  // Options logic
   let answered = false;
 
   function selectOption(el) {
@@ -631,27 +638,33 @@
     const title = document.getElementById('feedbackTitle');
     const desc  = document.getElementById('feedbackDesc');
 
-    if (isCorrect) {
-      emoji.textContent = '🔥';
-      title.innerHTML   = '<span class="highlight">Boa jogada.</span> Você entendeu.';
-      desc.textContent  = 'Transformar o "kkkk" em algo com tensão é o que separa quem gera interesse de quem passa despercebido. Essa resposta mantém o jogo.';
-    } else {
-      emoji.textContent = '😬';
-      title.innerHTML   = 'Essa mata a conversa <span class="highlight">na hora.</span>';
-      desc.textContent  = 'Perguntas óbvias ou imitar o outro sem adicionar nada geram resposta curta — e o papo some. A opção B mantém a tensão e deixa ela curiosa.';
-    }
+    if (card && emoji && title && desc) {
+      if (isCorrect) {
+        emoji.textContent = '🔥';
+        title.innerHTML   = '<span class="highlight">Boa jogada.</span> Você entendeu.';
+        desc.textContent  = 'Essa resposta mantém a tensão e o interesse.';
+      } else {
+        emoji.textContent = '😬';
+        title.innerHTML   = 'Essa mata a conversa <span class="highlight">na hora.</span>';
+        desc.textContent  = 'Resposta fraca = conversa morre.';
+      }
 
-    card.classList.add('visible');
+      card.classList.add('visible');
+    }
   }
 
-function nextQuestion() {
-  document.querySelector('.page').style.opacity = '0';
-  document.querySelector('.page').style.transition = 'opacity 0.4s ease';
+  // NEXT PAGE (CORRIGIDO)
+  function nextQuestion() {
+    const page = document.querySelector('.page');
 
-  setTimeout(() => {
-    window.location.href = "tela3.html";
-  }, 400);
-}
+    if (page) {
+      page.style.opacity = '0';
+      page.style.transition = 'opacity 0.4s ease';
+    }
+
+    setTimeout(() => {
+      window.location.href = "tela3.html";
+    }, 400);
   }
 </script>
 </body>
