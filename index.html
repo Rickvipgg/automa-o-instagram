@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulador de Sedução</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0A0A0C;
+    --accent: #E8407A;
+    --accent2: #7B5EFF;
+    --white: #FFFFFF;
+    --muted: #6B6B7A;
+    --muted2: #3A3A4A;
+    --glass: rgba(255,255,255,0.04);
+    --glass-border: rgba(255,255,255,0.07);
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* ── BACKGROUND CHAT TEXTURE ── */
+  .bg-canvas {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .bubble {
+    position: absolute;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 18px;
+    opacity: 0;
+    animation: floatBubble linear infinite;
+  }
+
+  .bubble::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(135deg, rgba(232,64,122,0.06), rgba(123,94,255,0.06));
+  }
+
+  @keyframes floatBubble {
+    0%   { opacity: 0; transform: translateY(20px); }
+    10%  { opacity: 1; }
+    85%  { opacity: 0.6; }
+    100% { opacity: 0; transform: translateY(-60px); }
+  }
+
+  /* Glow orbs */
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(90px);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .orb-1 {
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(232,64,122,0.18) 0%, transparent 70%);
+    top: -100px; right: -80px;
+    animation: orbPulse 6s ease-in-out infinite alternate;
+  }
+  .orb-2 {
+    width: 350px; height: 350px;
+    background: radial-gradient(circle, rgba(123,94,255,0.15) 0%, transparent 70%);
+    bottom: -80px; left: -60px;
+    animation: orbPulse 8s ease-in-out infinite alternate-reverse;
+  }
+  @keyframes orbPulse {
+    from { transform: scale(1); opacity: 0.7; }
+    to   { transform: scale(1.15); opacity: 1; }
+  }
+
+  /* ── LAYOUT ── */
+  .page {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px 60px;
+  }
+
+  /* ── TOP BADGE ── */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(232,64,122,0.1);
+    border: 1px solid rgba(232,64,122,0.25);
+    border-radius: 100px;
+    padding: 7px 16px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #FF7BAB;
+    letter-spacing: 0.04em;
+    margin-bottom: 36px;
+    opacity: 0;
+    animation: fadeUp 0.6s ease forwards 0.1s;
+  }
+  .badge-dot {
+    width: 6px; height: 6px;
+    background: #FF4D8D;
+    border-radius: 50%;
+    box-shadow: 0 0 8px #FF4D8D;
+    animation: blink 1.4s ease infinite;
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* ── HEADLINE ── */
+  .headline-block {
+    text-align: center;
+    max-width: 560px;
+    opacity: 0;
+    animation: fadeUp 0.7s ease forwards 0.25s;
+  }
+
+  .eyebrow {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 300;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(32px, 7vw, 52px);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--white);
+    margin-bottom: 4px;
+  }
+
+  h1 .line-muted {
+    display: block;
+    color: var(--muted);
+    font-weight: 600;
+    font-size: 0.75em;
+    letter-spacing: -0.01em;
+  }
+
+  h1 .accent-word {
+    background: linear-gradient(90deg, #FF4D8D, #A855F7);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* ── DIVIDER ── */
+  .divider {
+    width: 40px;
+    height: 2px;
+    background: linear-gradient(90deg, #FF4D8D, #7B5EFF);
+    border-radius: 2px;
+    margin: 28px auto;
+    opacity: 0;
+    animation: fadeUp 0.6s ease forwards 0.4s;
+  }
+
+  /* ── SUBHEADLINE ── */
+  .sub {
+    font-size: clamp(15px, 2.5vw, 17px);
+    font-weight: 300;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.65;
+    text-align: center;
+    max-width: 420px;
+    opacity: 0;
+    animation: fadeUp 0.7s ease forwards 0.5s;
+  }
+  .sub em {
+    font-style: normal;
+    color: rgba(255,255,255,0.8);
+    font-weight: 400;
+  }
+
+  /* ── SOCIAL PROOF + PROGRESS ── */
+  .meta-block {
+    margin-top: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    max-width: 340px;
+    opacity: 0;
+    animation: fadeUp 0.7s ease forwards 0.65s;
+  }
+
+  .social-proof {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .avatars { display: flex; }
+  .avatar {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    border: 2px solid var(--bg);
+    margin-left: -6px;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+  }
+  .avatar:first-child { margin-left: 0; }
+  .a1 { background: linear-gradient(135deg, #FF7BAB, #E8407A); }
+  .a2 { background: linear-gradient(135deg, #A78BFA, #7B5EFF); }
+  .a3 { background: linear-gradient(135deg, #FBB040, #F97316); }
+  .a4 { background: linear-gradient(135deg, #34D399, #059669); }
+
+  .proof-text strong {
+    color: rgba(255,255,255,0.8);
+    font-weight: 500;
+  }
+
+  /* Progress bar */
+  .progress-wrap {
+    width: 100%;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 100px;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .progress-label {
+    font-size: 12px;
+    color: var(--muted);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .progress-bar-bg {
+    flex: 1;
+    height: 4px;
+    background: var(--muted2);
+    border-radius: 100px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #FF4D8D, #7B5EFF);
+    border-radius: 100px;
+    animation: fillBar 1.8s cubic-bezier(0.16,1,0.3,1) forwards 1.2s;
+  }
+  @keyframes fillBar { to { width: 8%; } }
+  .progress-time {
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* ── CTA BUTTON ── */
+  .cta-wrap {
+    margin-top: 32px;
+    opacity: 0;
+    animation: fadeUp 0.7s ease forwards 0.8s;
+    width: 100%;
+    max-width: 340px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .cta-btn {
+    width: 100%;
+    padding: 18px 32px;
+    background: linear-gradient(135deg, #E8407A 0%, #A855F7 100%);
+    border: none;
+    border-radius: 14px;
+    color: #fff;
+    font-family: 'Syne', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+    box-shadow: 0 8px 32px rgba(232,64,122,0.35), 0 2px 8px rgba(0,0,0,0.4);
+  }
+
+  .cta-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 60%);
+    border-radius: inherit;
+  }
+
+  .cta-btn::after {
+    content: '';
+    position: absolute;
+    top: -50%; left: -60%;
+    width: 50%; height: 200%;
+    background: linear-gradient(105deg, transparent, rgba(255,255,255,0.15), transparent);
+    transform: skewX(-20deg);
+    animation: shimmer 3.5s ease infinite 2s;
+  }
+
+  @keyframes shimmer {
+    0%   { left: -60%; opacity: 0; }
+    5%   { opacity: 1; }
+    50%  { left: 120%; opacity: 0; }
+    100% { left: 120%; opacity: 0; }
+  }
+
+  .cta-btn:hover {
+    transform: translateY(-2px) scale(1.01);
+    box-shadow: 0 12px 40px rgba(232,64,122,0.45), 0 4px 12px rgba(0,0,0,0.4);
+  }
+  .cta-btn:active { transform: translateY(0) scale(0.99); }
+
+  .cta-sub {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.01em;
+  }
+
+  /* ── CHAT BUBBLES DECORATIVAS ── */
+  .chat-preview {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(500px, 100%);
+    height: 160px;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+    mask-image: linear-gradient(to top, rgba(0,0,0,0.12), transparent);
+    -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,0.12), transparent);
+  }
+
+  .chat-msg {
+    position: absolute;
+    padding: 9px 14px;
+    border-radius: 16px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    animation: chatFade ease-in-out infinite;
+  }
+  .chat-msg.right {
+    background: rgba(232,64,122,0.12);
+    border: 1px solid rgba(232,64,122,0.2);
+    color: rgba(255,255,255,0.35);
+    right: 24px;
+    border-bottom-right-radius: 4px;
+  }
+  .chat-msg.left {
+    background: rgba(123,94,255,0.1);
+    border: 1px solid rgba(123,94,255,0.18);
+    color: rgba(255,255,255,0.3);
+    left: 24px;
+    border-bottom-left-radius: 4px;
+  }
+  @keyframes chatFade {
+    0%, 100% { opacity: 0; }
+    20%, 80% { opacity: 1; }
+  }
+
+  /* ── FADE UP ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(22px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  ::-webkit-scrollbar { width: 0; }
+</style>
+</head>
+<body>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="bg-canvas" id="bgCanvas"></div>
+
+<div class="chat-preview">
+  <div class="chat-msg right" style="bottom:110px; animation-duration:5s; animation-delay:0.5s;">oi, sumiu né 👀</div>
+  <div class="chat-msg left"  style="bottom:75px;  animation-duration:6s; animation-delay:1.5s;">nossa, deixou em visto de novo?</div>
+  <div class="chat-msg right" style="bottom:42px;  animation-duration:7s; animation-delay:3s;">acho que mandei mensagem errada kkk</div>
+  <div class="chat-msg left"  style="bottom:10px;  animation-duration:5.5s; animation-delay:4s;">❤️‍🔥</div>
+</div>
+
+<main class="page">
+
+  <div class="badge">
+    <span class="badge-dot"></span>
+    Teste disponível agora
+  </div>
+
+  <div class="headline-block">
+    <p class="eyebrow">Simulador de sedução por mensagens</p>
+    <h1>
+      <span class="line-muted">Vamos ser sinceros:</span>
+      não é falta de papo…
+      <br>é você <span class="accent-word">estragando</span>
+      <br>sem perceber.
+    </h1>
+  </div>
+
+  <div class="divider"></div>
+
+  <p class="sub">
+    Descubra agora se você sabe manter uma conversa
+    <em>ou se tá afastando sem perceber.</em>
+  </p>
+
+  <div class="meta-block">
+    <div class="social-proof">
+      <div class="avatars">
+        <div class="avatar a1">A</div>
+        <div class="avatar a2">M</div>
+        <div class="avatar a3">J</div>
+        <div class="avatar a4">L</div>
+      </div>
+      <p class="proof-text"><strong>+3.217 pessoas</strong> fizeram hoje</p>
+    </div>
+
+    <div class="progress-wrap">
+      <span class="progress-label">⚡ Teste rápido</span>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill"></div>
+      </div>
+      <span class="progress-time">~1 min</span>
+    </div>
+  </div>
+
+  <div class="cta-wrap">
+    <button class="cta-btn">👉 Começar o teste</button>
+    <p class="cta-sub">🔒 Gratuito · Sem cadastro · Resultado imediato</p>
+  </div>
+
+</main>
+
+<script>
+  const canvas = document.getElementById('bgCanvas');
+  const shapes = [
+    {w:120},{w:180},{w:90},{w:150},{w:200},
+    {w:80},{w:140},{w:100},{w:160},{w:220},{w:70},{w:130}
+  ];
+  shapes.forEach((s, i) => {
+    const el = document.createElement('div');
+    el.className = 'bubble';
+    const left  = Math.random() * 90;
+    const top   = 10 + Math.random() * 80;
+    const dur   = 12 + Math.random() * 16;
+    const delay = Math.random() * -20;
+    el.style.cssText = `
+      width:${s.w}px; height:36px;
+      left:${left}%; top:${top}%;
+      animation-duration:${dur}s;
+      animation-delay:${delay}s;
+      border-radius: ${i % 2 === 0 ? '18px 18px 18px 4px' : '18px 18px 4px 18px'};
+    `;
+    canvas.appendChild(el);
+  });
+</script>
+</body>
+</html>

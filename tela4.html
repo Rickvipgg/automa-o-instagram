@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulador de Sedução — Pergunta 2</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0A0A0C;
+    --accent: #E8407A;
+    --accent2: #7B5EFF;
+    --white: #FFFFFF;
+    --muted: #6B6B7A;
+    --muted2: #3A3A4A;
+    --glass: rgba(255,255,255,0.04);
+    --glass-border: rgba(255,255,255,0.07);
+    --color-good: #22C55E;
+    --color-mid:  #F59E0B;
+    --color-bad:  #EF4444;
+  }
+
+  html, body {
+    min-height: 100%; background: var(--bg);
+    color: var(--white); font-family: 'DM Sans', sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* ── ORBS ── */
+  .orb { position: fixed; border-radius: 50%; filter: blur(90px); pointer-events: none; z-index: 0; }
+  .orb-1 {
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(232,64,122,.14) 0%, transparent 70%);
+    top: -100px; right: -80px;
+    animation: orbPulse 6s ease-in-out infinite alternate;
+  }
+  .orb-2 {
+    width: 350px; height: 350px;
+    background: radial-gradient(circle, rgba(123,94,255,.12) 0%, transparent 70%);
+    bottom: -80px; left: -60px;
+    animation: orbPulse 8s ease-in-out infinite alternate-reverse;
+  }
+  @keyframes orbPulse {
+    from { transform: scale(1); opacity: .7; }
+    to   { transform: scale(1.15); opacity: 1; }
+  }
+
+  /* ── BG BUBBLES ── */
+  .bg-canvas { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
+  .bubble {
+    position: absolute; background: var(--glass);
+    border: 1px solid var(--glass-border); opacity: 0;
+    animation: floatBubble linear infinite;
+  }
+  .bubble::after {
+    content: ''; position: absolute; inset: 0; border-radius: inherit;
+    background: linear-gradient(135deg, rgba(232,64,122,.05), rgba(123,94,255,.05));
+  }
+  @keyframes floatBubble {
+    0%   { opacity: 0; transform: translateY(20px); }
+    10%  { opacity: 1; } 85% { opacity: .5; }
+    100% { opacity: 0; transform: translateY(-60px); }
+  }
+
+  /* ── PAGE ── */
+  .page {
+    position: relative; z-index: 1;
+    min-height: 100vh; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 48px 24px 90px;
+  }
+
+  /* ── TOP BAR ── */
+  .top-bar {
+    width: 100%; max-width: 400px; margin-bottom: 20px;
+    opacity: 0; animation: fadeUp .5s ease forwards .05s;
+  }
+  .progress-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .question-label { font-size: 12px; font-weight: 500; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; }
+  .ranking-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(123,94,255,.12); border: 1px solid rgba(123,94,255,.22);
+    border-radius: 100px; padding: 4px 11px;
+    font-size: 11px; font-weight: 500; color: #A78BFA;
+  }
+  .ranking-pill .dot { width: 5px; height: 5px; background: #7B5EFF; border-radius: 50%; box-shadow: 0 0 6px #7B5EFF; }
+  .progress-track { height: 5px; background: var(--muted2); border-radius: 100px; overflow: hidden; }
+  .progress-fill {
+    height: 100%; width: 0%;
+    background: linear-gradient(90deg, #FF4D8D, #7B5EFF); border-radius: 100px;
+    animation: fillProg 1s cubic-bezier(.16,1,.3,1) forwards .5s;
+  }
+  @keyframes fillProg { to { width: 60%; } }
+  .step-dots { display: flex; gap: 6px; margin-top: 10px; justify-content: center; }
+  .step-dot { width: 28px; height: 3px; border-radius: 100px; background: var(--muted2); }
+  .step-dot.done   { background: rgba(255,255,255,.2); }
+  .step-dot.active { background: linear-gradient(90deg, #FF4D8D, #7B5EFF); }
+
+  /* ── COMBO CARD ── */
+  .combo-card {
+    width: 100%; max-width: 400px; margin-bottom: 20px;
+    display: flex; align-items: center; gap: 14px;
+    background: var(--glass); border: 1px solid var(--glass-border);
+    border-radius: 14px; padding: 13px 16px;
+    position: relative; overflow: hidden;
+    opacity: 0; animation: fadeUp .55s ease forwards .18s;
+    transition: border-color .3s, box-shadow .3s;
+  }
+  .combo-card.hot {
+    border-color: rgba(232,64,122,.3);
+    box-shadow: 0 0 24px rgba(232,64,122,.1);
+  }
+  .combo-card.hot::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(232,64,122,.06), rgba(123,94,255,.04));
+  }
+  .combo-flame {
+    font-size: 26px; flex-shrink: 0;
+    animation: flamePulse 1.6s ease-in-out infinite;
+  }
+  @keyframes flamePulse {
+    0%,100% { transform: scale(1) rotate(-2deg); }
+    50%      { transform: scale(1.12) rotate(2deg); }
+  }
+  .combo-info { flex: 1; }
+  .combo-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 2px; }
+  .combo-value { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: var(--white); }
+  .combo-value .streak { color: #FF4D8D; }
+  .combo-badge {
+    font-size: 11px; font-weight: 500; padding: 4px 10px;
+    border-radius: 100px;
+    background: rgba(232,64,122,.12); border: 1px solid rgba(232,64,122,.2);
+    color: #FF7BAB; white-space: nowrap;
+  }
+  .combo-badge.neutral {
+    background: rgba(255,255,255,.05); border-color: var(--glass-border); color: var(--muted);
+  }
+
+  /* ── SCENARIO ── */
+  .scenario-wrap {
+    width: 100%; max-width: 400px; margin-bottom: 24px;
+    opacity: 0; animation: fadeUp .6s ease forwards .32s;
+  }
+  .scenario-label {
+    font-size: 11px; color: var(--muted); letter-spacing: .05em; text-transform: uppercase;
+    margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+  }
+  .scenario-label::before { content: ''; width: 20px; height: 1px; background: var(--muted2); }
+  .chat-window {
+    background: rgba(255,255,255,.025); border: 1px solid var(--glass-border);
+    border-radius: 20px; padding: 18px 16px; display: flex; flex-direction: column; gap: 14px;
+    position: relative; overflow: hidden;
+  }
+  .chat-window::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.08), transparent);
+  }
+  /* time gap pill */
+  .time-gap {
+    display: flex; align-items: center; gap: 10px;
+    opacity: 0; animation: fadeIn .4s ease forwards .5s;
+  }
+  .time-gap::before, .time-gap::after {
+    content: ''; flex: 1; height: 1px; background: var(--glass-border);
+  }
+  .time-gap span {
+    font-size: 10px; color: var(--muted); white-space: nowrap;
+    background: rgba(255,255,255,.04); border: 1px solid var(--glass-border);
+    border-radius: 100px; padding: 3px 10px;
+  }
+  /* chat row */
+  .msg-row { display: flex; align-items: flex-end; gap: 10px; }
+  .avatar-chat {
+    width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+    background: linear-gradient(135deg, #FF7BAB, #E8407A);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: white; margin-bottom: 2px;
+  }
+  .msg-bubble {
+    background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.09);
+    border-radius: 18px 18px 18px 4px; padding: 11px 15px;
+    font-size: 14px; line-height: 1.5; color: var(--white);
+    opacity: 0; transform: scale(.85);
+    animation: bubblePop .45s cubic-bezier(.34,1.56,.64,1) forwards .85s;
+  }
+  @keyframes bubblePop { to { transform: scale(1); opacity: 1; } }
+  @keyframes fadeIn { to { opacity: 1; } }
+  .msg-time { font-size: 10px; color: var(--muted); margin-top: 2px; margin-left: 40px; opacity: 0; animation: fadeIn .3s ease forwards 1.05s; }
+
+  /* Typing indicator */
+  .typing-row { display: flex; align-items: center; gap: 10px; opacity: 0; animation: fadeIn .3s ease forwards .5s; }
+  .typing-bubble {
+    background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.07);
+    border-radius: 18px 18px 18px 4px; padding: 10px 14px;
+    display: flex; gap: 5px; align-items: center;
+  }
+  .typing-dot {
+    width: 5px; height: 5px; background: var(--muted); border-radius: 50%;
+    animation: typingBounce 1.2s ease infinite;
+  }
+  .typing-dot:nth-child(2) { animation-delay: .2s; }
+  .typing-dot:nth-child(3) { animation-delay: .4s; }
+  @keyframes typingBounce {
+    0%,80%,100% { transform: translateY(0); opacity: .4; }
+    40% { transform: translateY(-5px); opacity: 1; }
+  }
+
+  /* ── QUESTION ── */
+  .question-block {
+    width: 100%; max-width: 400px; margin-bottom: 22px;
+    opacity: 0; animation: fadeUp .6s ease forwards .55s;
+  }
+  .question-text {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(20px,5vw,26px); font-weight: 700;
+    line-height: 1.2; letter-spacing: -.02em;
+  }
+  .question-sub { font-size: 13px; color: var(--muted); margin-top: 6px; font-weight: 300; }
+
+  /* ── OPTIONS ── */
+  .options-wrap {
+    width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 11px;
+    opacity: 0; animation: fadeUp .6s ease forwards .7s;
+  }
+  .option-btn {
+    width: 100%; padding: 15px 18px;
+    background: var(--glass); border: 1px solid var(--glass-border);
+    border-radius: 14px; color: rgba(255,255,255,.72);
+    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 400;
+    text-align: left; cursor: pointer; position: relative; overflow: hidden;
+    transition: all .2s ease; display: flex; align-items: center; gap: 13px;
+  }
+  .option-btn::before {
+    content: ''; position: absolute; inset: 0; border-radius: inherit;
+    background: linear-gradient(135deg, rgba(232,64,122,0), rgba(123,94,255,0));
+    transition: background .25s ease;
+  }
+  .option-letter {
+    flex-shrink: 0; width: 27px; height: 27px; border-radius: 8px;
+    background: var(--muted2); border: 1px solid rgba(255,255,255,.07);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700;
+    color: var(--muted); transition: all .2s ease;
+  }
+  .option-text { flex: 1; line-height: 1.4; }
+  .option-btn:hover { border-color: rgba(232,64,122,.4); color: var(--white); transform: translateX(3px); box-shadow: 0 4px 20px rgba(232,64,122,.1); }
+  .option-btn:hover::before { background: linear-gradient(135deg, rgba(232,64,122,.06), rgba(123,94,255,.04)); }
+  .option-btn:hover .option-letter { background: rgba(232,64,122,.18); border-color: rgba(232,64,122,.35); color: #FF7BAB; }
+  .option-btn.selected { border-color: rgba(232,64,122,.6); color: var(--white); box-shadow: 0 4px 28px rgba(232,64,122,.18); }
+  .option-btn.selected::before { background: linear-gradient(135deg, rgba(232,64,122,.1), rgba(123,94,255,.07)); }
+  .option-btn.selected .option-letter { background: linear-gradient(135deg,#E8407A,#A855F7); border-color: transparent; color: white; }
+  .option-btn.selected-mid { border-color: rgba(245,158,11,.5); }
+  .option-btn.selected-mid .option-letter { background: linear-gradient(135deg,#F59E0B,#FCD34D); border-color: transparent; color: white; }
+  .option-btn.wrong { border-color: var(--glass-border); color: var(--muted); opacity: .45; pointer-events: none; }
+  .option-btn.shake { animation: shake .4s ease; }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20% { transform: translateX(-5px); }
+    40% { transform: translateX(5px); }
+    60% { transform: translateX(-3px); }
+    80% { transform: translateX(3px); }
+  }
+
+  /* ── FEEDBACK CARD ── */
+  .feedback-section { width: 100%; max-width: 400px; margin-top: 16px; display: none; flex-direction: column; gap: 12px; }
+  .feedback-section.visible { display: flex; }
+
+  .feedback-card {
+    border-radius: 18px; padding: 20px 20px; position: relative; overflow: hidden;
+    opacity: 0; animation: fadeUp .5s ease forwards;
+  }
+  .feedback-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.1), transparent);
+  }
+  .feedback-card.good { background: rgba(34,197,94,.07); border: 1px solid rgba(34,197,94,.2); }
+  .feedback-card.mid  { background: rgba(245,158,11,.07); border: 1px solid rgba(245,158,11,.2); }
+  .feedback-card.bad  { background: rgba(239,68,68,.07);  border: 1px solid rgba(239,68,68,.18); }
+
+  .fb-header { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .fb-icon { font-size: 22px; }
+  .fb-title { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 800; }
+  .fb-title.good { color: var(--color-good); }
+  .fb-title.mid  { color: var(--color-mid); }
+  .fb-title.bad  { color: var(--color-bad); }
+  .fb-body { font-size: 13px; color: rgba(255,255,255,.55); line-height: 1.75; font-weight: 300; }
+  .fb-body strong { color: rgba(255,255,255,.85); font-weight: 500; }
+
+  /* Combo result strip */
+  .combo-result {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--glass); border: 1px solid var(--glass-border);
+    border-radius: 12px; padding: 12px 15px;
+    opacity: 0; animation: fadeUp .5s ease forwards .12s;
+  }
+  .combo-result.gained { border-color: rgba(232,64,122,.25); box-shadow: 0 0 20px rgba(232,64,122,.08); }
+  .combo-result.lost   { border-color: rgba(239,68,68,.2); }
+  .cr-icon { font-size: 20px; }
+  .cr-text { flex: 1; }
+  .cr-main { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: var(--white); }
+  .cr-sub  { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .cr-xp {
+    font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 800;
+    background: linear-gradient(90deg, #FF4D8D, #A855F7);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .cr-xp.zero { color: var(--muted); background: none; -webkit-text-fill-color: var(--muted); }
+
+  /* ── CHEST ── */
+  .chest-card {
+    background: linear-gradient(135deg, rgba(245,158,11,.08), rgba(232,64,122,.06));
+    border: 1px solid rgba(245,158,11,.25);
+    border-radius: 18px; padding: 18px 20px;
+    cursor: pointer; position: relative; overflow: hidden;
+    opacity: 0; animation: fadeUp .5s ease forwards .22s;
+    transition: transform .2s ease, box-shadow .2s ease;
+  }
+  .chest-card:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(245,158,11,.15); }
+  .chest-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(245,158,11,.3), transparent);
+  }
+  .chest-header { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; }
+  .chest-icon { font-size: 26px; animation: chestBounce 2s ease-in-out infinite; }
+  @keyframes chestBounce {
+    0%,100% { transform: translateY(0) rotate(-2deg); }
+    50%      { transform: translateY(-4px) rotate(2deg); }
+  }
+  .chest-title { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: #FCD34D; }
+  .chest-sub   { font-size: 12px; color: rgba(245,158,11,.6); margin-top: 2px; }
+  .chest-cta   { font-size: 12px; color: var(--muted); margin-top: 10px; display: flex; align-items: center; gap: 6px; }
+  .chest-cta::after { content: '→'; transition: transform .2s; }
+  .chest-card:hover .chest-cta::after { transform: translateX(4px); }
+
+  /* Chest reveal */
+  .chest-reveal {
+    display: none; margin-top: 12px; padding-top: 14px;
+    border-top: 1px solid rgba(245,158,11,.15);
+  }
+  .chest-reveal.open { display: block; animation: fadeUp .4s ease forwards; }
+  .chest-msg-label { font-size: 10px; color: rgba(245,158,11,.5); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 10px; }
+  .chest-msg-bubble {
+    background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.09);
+    border-radius: 14px 14px 14px 4px; padding: 12px 15px;
+    font-size: 14px; line-height: 1.5; color: var(--white);
+    font-style: italic; position: relative;
+  }
+  .chest-msg-bubble::before {
+    content: '"'; position: absolute; top: 8px; left: 12px;
+    font-size: 28px; color: rgba(245,158,11,.2); font-family: Georgia, serif; line-height: 1;
+  }
+
+  /* ── CTA ── */
+  .cta-wrap {
+    width: 100%; max-width: 400px; margin-top: 20px;
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+    opacity: 0; animation: fadeUp .6s ease forwards .35s;
+  }
+  .cta-btn {
+    width: 100%; padding: 18px 32px;
+    background: linear-gradient(135deg, #E8407A 0%, #A855F7 100%);
+    border: none; border-radius: 14px; color: #fff;
+    font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700; letter-spacing: -.01em;
+    cursor: pointer; position: relative; overflow: hidden;
+    transition: transform .18s ease, box-shadow .18s ease;
+    box-shadow: 0 8px 32px rgba(232,64,122,.35), 0 2px 8px rgba(0,0,0,.4);
+  }
+  .cta-btn::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,.14) 0%, transparent 55%);
+  }
+  .cta-btn::after {
+    content: ''; position: absolute;
+    top: -50%; left: -60%; width: 50%; height: 200%;
+    background: linear-gradient(105deg, transparent, rgba(255,255,255,.14), transparent);
+    transform: skewX(-20deg);
+    animation: shimmer 3.5s ease infinite 2.5s;
+  }
+  @keyframes shimmer {
+    0%   { left: -60%; opacity: 0; } 5% { opacity: 1; }
+    50%  { left: 120%; opacity: 0; } 100% { left: 120%; opacity: 0; }
+  }
+  .cta-btn:hover { transform: translateY(-2px) scale(1.01); box-shadow: 0 12px 40px rgba(232,64,122,.45); }
+  .cta-btn:active { transform: translateY(0) scale(.99); }
+  .cta-hint { font-size: 12px; color: var(--muted); }
+
+  /* ── OVERLAY (question phase) ── */
+  #ctaQuestion { display: none; }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  ::-webkit-scrollbar { width: 0; }
+</style>
+</head>
+<body>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="bg-canvas" id="bgCanvas"></div>
+
+<main class="page" id="mainPage">
+
+  <!-- ── TOP BAR ── -->
+  <div class="top-bar">
+    <div class="progress-header">
+      <span class="question-label">Pergunta 2 de 5</span>
+      <span class="ranking-pill"><span class="dot"></span>Melhor que 72% das pessoas</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill"></div></div>
+    <div class="step-dots">
+      <div class="step-dot done"></div>
+      <div class="step-dot active"></div>
+      <div class="step-dot"></div>
+      <div class="step-dot"></div>
+      <div class="step-dot"></div>
+    </div>
+  </div>
+
+  <!-- ── COMBO CARD ── -->
+  <div class="combo-card" id="comboCard">
+    <div class="combo-flame" id="comboFlame">🔥</div>
+    <div class="combo-info">
+      <p class="combo-label">Combo</p>
+      <p class="combo-value" id="comboValue">—</p>
+    </div>
+    <span class="combo-badge" id="comboBadge">—</span>
+  </div>
+
+  <!-- ── SCENARIO ── -->
+  <div class="scenario-wrap">
+    <p class="scenario-label">Cenário</p>
+    <div class="chat-window">
+      <div class="time-gap"><span>⏱ 5 horas depois</span></div>
+
+      <div class="typing-row" id="typingRow">
+        <div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#FF7BAB,#E8407A);flex-shrink:0;"></div>
+        <div class="typing-bubble">
+          <div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>
+        </div>
+      </div>
+
+      <div class="msg-row" id="msgRow" style="display:none;">
+        <div class="avatar-chat">A</div>
+        <div class="msg-bubble">foi mal, correria aqui kkk</div>
+      </div>
+      <div class="msg-time" id="msgTime" style="display:none;">agora</div>
+    </div>
+  </div>
+
+  <!-- ── QUESTION ── -->
+  <div class="question-block" id="questionBlock">
+    <p class="question-text">O que você faz agora?</p>
+    <p class="question-sub">Ela demorou 5 horas. Qual é o movimento certo?</p>
+  </div>
+
+  <!-- ── OPTIONS ── -->
+  <div class="options-wrap" id="optionsWrap">
+    <button class="option-btn" data-key="A" onclick="pick(this)">
+      <span class="option-letter">A</span>
+      <span class="option-text">sumiu pq?</span>
+    </button>
+    <button class="option-btn" data-key="B" onclick="pick(this)">
+      <span class="option-letter">B</span>
+      <span class="option-text">relaxa kkk, acontece… tava aprontando oq aí?</span>
+    </button>
+    <button class="option-btn" data-key="C" onclick="pick(this)">
+      <span class="option-letter">C</span>
+      <span class="option-text">Ignora e responde só depois</span>
+    </button>
+  </div>
+
+  <!-- ── FEEDBACK (hidden until answered) ── -->
+  <div class="feedback-section" id="feedbackSection">
+
+    <!-- Result card -->
+    <div class="feedback-card" id="fbCard">
+      <div class="fb-header">
+        <span class="fb-icon" id="fbIcon"></span>
+        <span class="fb-title" id="fbTitle"></span>
+      </div>
+      <p class="fb-body" id="fbBody"></p>
+    </div>
+
+    <!-- Combo / XP strip -->
+    <div class="combo-result" id="comboResult">
+      <span class="cr-icon" id="crIcon"></span>
+      <div class="cr-text">
+        <p class="cr-main" id="crMain"></p>
+        <p class="cr-sub"  id="crSub"></p>
+      </div>
+      <span class="cr-xp" id="crXp"></span>
+    </div>
+
+    <!-- Chest (good + mid only) -->
+    <div class="chest-card" id="chestCard" onclick="openChest()" style="display:none;">
+      <div class="chest-header">
+        <span class="chest-icon">🎁</span>
+        <div>
+          <p class="chest-title">Baú desbloqueado</p>
+          <p class="chest-sub">Recompensa especial liberada</p>
+        </div>
+      </div>
+      <p class="chest-cta">Toque para revelar a mensagem que funciona</p>
+      <div class="chest-reveal" id="chestReveal">
+        <p class="chest-msg-label">Mensagem que mantém o interesse</p>
+        <div class="chest-msg-bubble" id="chestMsg"></div>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-wrap" id="ctaQuestion">
+      <button class="cta-btn" onclick="goNext()">Continuar →</button>
+      <p class="cta-hint" id="ctaHint">mais 3 perguntas pra revelar seu perfil</p>
+    </div>
+
+  </div>
+
+</main>
+
+<script>
+  /* ── BG BUBBLES ── */
+  const canvas = document.getElementById('bgCanvas');
+  [120,180,90,150,200,80,140,100,160,70].forEach((w,i)=>{
+    const el=document.createElement('div'); el.className='bubble';
+    el.style.cssText=`width:${w}px;height:36px;left:${Math.random()*90}%;top:${10+Math.random()*80}%;animation-duration:${12+Math.random()*16}s;animation-delay:${Math.random()*-20}s;border-radius:${i%2===0?'18px 18px 18px 4px':'18px 18px 4px 18px'};`;
+    canvas.appendChild(el);
+  });
+
+  /* ── READ PREV ANSWER from URL ── */
+  const params    = new URLSearchParams(window.location.search);
+  const prevRight = (params.get('prev') || 'yes') === 'yes'; // 'yes' = acertou, 'no' = errou
+  const comboCount = parseInt(params.get('combo') || '1');
+
+  /* ── APPLY COMBO STATE ── */
+  const comboCard  = document.getElementById('comboCard');
+  const comboFlame = document.getElementById('comboFlame');
+  const comboVal   = document.getElementById('comboValue');
+  const comboBadge = document.getElementById('comboBadge');
+
+  if (prevRight) {
+    comboCard.classList.add('hot');
+    comboFlame.textContent = '🔥';
+    comboVal.innerHTML     = `<span class="streak">${comboCount}x</span> acerto seguido`;
+    comboBadge.textContent = 'Você está pegando o jeito';
+    comboBadge.classList.remove('neutral');
+  } else {
+    comboFlame.textContent       = '💤';
+    comboVal.textContent         = 'Sem combo ativo';
+    comboBadge.textContent       = 'Recupere com essa';
+    comboBadge.classList.add('neutral');
+  }
+
+  /* ── TYPING → MESSAGE ── */
+  setTimeout(()=>{
+    document.getElementById('typingRow').style.display='none';
+    document.getElementById('msgRow').style.display='flex';
+    document.getElementById('msgTime').style.display='block';
+  }, 1800);
+
+  /* ── ANSWER DATA ── */
+  const answers = {
+    B: {
+      grade:'good',
+      fbIcon:'✔', fbTitle:'Perfeito. Esse é o movimento.',
+      fbBody:`<strong>Você não pressionou, não fingiu que não liga</strong> — manteve leveza e virou o assunto com curiosidade.\n\nEsse é o padrão que cria atração real: ela se desculpa, você alivia, e já cria o próximo gancho.\n\nO "tava aprontando oq?" transforma o retorno dela em abertura. Ela agora precisa responder — o jogo continua.`,
+      comboGain:true, xpLabel:'+15 XP',
+      crIcon:'🔥', crMain:'Sequência ativa!', crSub:'Continue acertando pra multiplicar o XP',
+      showChest:true, chestMsg:`relaxa kkk, achei que tinha sido sequestrada já 😅`,
+    },
+    C: {
+      grade:'mid',
+      fbIcon:'⚠', fbTitle:'Não errou. Mas perdeu o timing.',
+      fbBody:`Ignorar e responder depois pode funcionar às vezes — mas aqui você <strong>deixou o momentum ir embora</strong>.\n\nEla já se desculpou, está disponível, está aberta. Esperar mais só diz "não estou tão interessado".\n\nNão é falta de interesse. É falta de aproveitamento.`,
+      comboGain:false, xpLabel:'+5 XP',
+      crIcon:'⏳', crMain:'Sequência pausada.', crSub:'Timing é tudo — você chegou perto',
+      showChest:true, chestMsg:`relaxa kkk, achei que tinha sido sequestrada já 😅`,
+    },
+    A: {
+      grade:'bad',
+      fbIcon:'✕', fbTitle:'Pressão direta. Quebrou tudo.',
+      fbBody:`"Sumiu pq?" parece inofensivo, mas carrega <strong>cobrança</strong> — e cobrança cria desconforto.\n\nEla já explicou. Você pediu explicação de novo. Isso transforma um retorno leve num momento tenso.\n\nÉ exatamente assim que conversas que estavam indo bem começam a esfriar.`,
+      comboGain:false, xpLabel:'+0 XP',
+      crIcon:'💔', crMain:'Sequência perdida.', crSub:'Isso acontece quando você força demais',
+      showChest:false, chestMsg:'',
+    },
+  };
+
+  /* ── PICK ANSWER ── */
+  let answered = false;
+
+  function pick(el) {
+    if (answered) return;
+    answered = true;
+
+    const key = el.dataset.key;
+    const d   = answers[key];
+
+    // Freeze buttons
+    document.querySelectorAll('.option-btn').forEach(btn=>{
+      if (btn === el) {
+        btn.classList.add(d.grade==='mid' ? 'selected-mid' : 'selected');
+      } else {
+        btn.classList.add('wrong');
+      }
+      btn.style.pointerEvents = 'none';
+    });
+    if (d.grade==='bad') el.classList.add('shake');
+
+    // Apply feedback card
+    const fbCard = document.getElementById('fbCard');
+    fbCard.classList.add(d.grade);
+    document.getElementById('fbIcon').textContent  = d.fbIcon;
+    const fbTitle = document.getElementById('fbTitle');
+    fbTitle.textContent = d.fbTitle;
+    fbTitle.classList.add(d.grade);
+    document.getElementById('fbBody').innerHTML = d.fbBody.replace(/\n\n/g,'<br><br>');
+
+    // Combo result
+    const crEl = document.getElementById('comboResult');
+    crEl.classList.add(d.comboGain ? 'gained' : 'lost');
+    document.getElementById('crIcon').textContent = d.crIcon;
+    document.getElementById('crMain').textContent = d.crMain;
+    document.getElementById('crSub').textContent  = d.crSub;
+    const crXp = document.getElementById('crXp');
+    crXp.textContent = d.xpLabel;
+    if (key==='A') crXp.classList.add('zero');
+
+    // Update top combo card
+    if (d.comboGain) {
+      comboCard.classList.add('hot');
+      comboVal.innerHTML     = `<span class="streak">${comboCount+1}x</span> acerto seguido`;
+      comboBadge.textContent = '🔥 Sequência ativa';
+    } else {
+      comboCard.classList.remove('hot');
+      comboFlame.textContent       = '💔';
+      comboVal.textContent         = 'Combo zerado';
+      comboBadge.textContent       = 'Recupere na próxima';
+      comboBadge.classList.add('neutral');
+    }
+
+    // Chest
+    if (d.showChest) {
+      const chestCard = document.getElementById('chestCard');
+      chestCard.style.display = 'block';
+      document.getElementById('chestMsg').textContent = d.chestMsg;
+    }
+
+    // Show section
+    document.getElementById('feedbackSection').classList.add('visible');
+    document.getElementById('ctaQuestion').style.display = 'flex';
+
+    // Particles if correct
+    if (d.grade==='good') setTimeout(spawnParticles, 400);
+  }
+
+  /* ── CHEST ── */
+  let chestOpen = false;
+  function openChest() {
+    if (chestOpen) return;
+    chestOpen = true;
+    document.getElementById('chestReveal').classList.add('open');
+    document.getElementById('chestCard').querySelector('.chest-cta').style.display = 'none';
+    document.getElementById('chestCard').querySelector('.chest-icon').textContent = '📬';
+    if (typeof spawnParticles === 'function') spawnParticles(12);
+  }
+
+  /* ── PARTICLES ── */
+  function spawnParticles(count=18) {
+    const colors=['#FF4D8D','#A855F7','#22C55E','#FCD34D','#F97316'];
+    for(let i=0;i<count;i++){
+      const p=document.createElement('div');
+      const color=colors[Math.floor(Math.random()*colors.length)];
+      const size=4+Math.random()*5;
+      const angle=Math.random()*360;
+      const dist=80+Math.random()*110;
+      const dur=600+Math.random()*400;
+      p.style.cssText=`position:fixed;width:${size}px;height:${size}px;border-radius:50%;background:${color};top:50%;left:50%;pointer-events:none;z-index:999;transform:translate(-50%,-50%);transition:transform ${dur}ms cubic-bezier(.2,.8,.3,1),opacity ${dur}ms ease;opacity:1;`;
+      document.body.appendChild(p);
+      requestAnimationFrame(()=>{
+        const r=angle*Math.PI/180;
+        p.style.transform=`translate(calc(-50% + ${Math.cos(r)*dist}px),calc(-50% + ${Math.sin(r)*dist}px))`;
+        p.style.opacity='0';
+      });
+      setTimeout(()=>p.remove(),dur+100);
+    }
+  }
+
+  /* ── NEXT ── */
+  function goNext() {
+    const page=document.getElementById('mainPage');
+    page.style.opacity='0';
+    page.style.transition='opacity .4s ease';
+    setTimeout(()=>{
+      // window.location.href = `tela5.html?prev=${answered?'yes':'no'}&combo=${comboCount+(answered?1:0)}`;
+      alert('Conecte a tela 5 aqui.');
+    }, 420);
+  }
+</script>
+</body>
+</html>

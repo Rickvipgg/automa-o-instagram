@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulador de Sedução — Resultado</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0A0A0C;
+    --accent: #E8407A;
+    --accent2: #7B5EFF;
+    --white: #FFFFFF;
+    --muted: #6B6B7A;
+    --muted2: #3A3A4A;
+    --glass: rgba(255,255,255,0.04);
+    --glass-border: rgba(255,255,255,0.07);
+
+    --color-good:   #22C55E;
+    --color-mid:    #F59E0B;
+    --color-bad:    #EF4444;
+    --glow-good:    rgba(34,197,94,0.2);
+    --glow-mid:     rgba(245,158,11,0.2);
+    --glow-bad:     rgba(239,68,68,0.2);
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* ── ORBS ── */
+  .orb {
+    position: fixed; border-radius: 50%;
+    filter: blur(90px); pointer-events: none; z-index: 0;
+  }
+  .orb-1 {
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(232,64,122,0.14) 0%, transparent 70%);
+    top: -100px; right: -80px;
+    animation: orbPulse 6s ease-in-out infinite alternate;
+  }
+  .orb-2 {
+    width: 350px; height: 350px;
+    background: radial-gradient(circle, rgba(123,94,255,0.12) 0%, transparent 70%);
+    bottom: -80px; left: -60px;
+    animation: orbPulse 8s ease-in-out infinite alternate-reverse;
+  }
+  @keyframes orbPulse {
+    from { transform: scale(1); opacity: .7; }
+    to   { transform: scale(1.15); opacity: 1; }
+  }
+
+  /* ── BG BUBBLES ── */
+  .bg-canvas { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
+  .bubble {
+    position: absolute; background: var(--glass);
+    border: 1px solid var(--glass-border); opacity: 0;
+    animation: floatBubble linear infinite;
+  }
+  .bubble::after {
+    content: ''; position: absolute; width: 100%; height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(135deg, rgba(232,64,122,.05), rgba(123,94,255,.05));
+  }
+  @keyframes floatBubble {
+    0%   { opacity: 0; transform: translateY(20px); }
+    10%  { opacity: 1; }
+    85%  { opacity: .5; }
+    100% { opacity: 0; transform: translateY(-60px); }
+  }
+
+  /* ── PAGE ── */
+  .page {
+    position: relative; z-index: 1;
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 48px 24px 80px;
+  }
+
+  /* ── TOP PROGRESS ── */
+  .top-bar {
+    width: 100%; max-width: 400px;
+    margin-bottom: 32px;
+    opacity: 0; animation: fadeUp .5s ease forwards .05s;
+  }
+  .progress-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 10px;
+  }
+  .question-label {
+    font-size: 12px; font-weight: 500; color: var(--muted);
+    letter-spacing: .06em; text-transform: uppercase;
+  }
+  .xp-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(123,94,255,.12);
+    border: 1px solid rgba(123,94,255,.22);
+    border-radius: 100px; padding: 4px 11px;
+    font-size: 11px; font-weight: 600; color: #A78BFA;
+  }
+  .progress-track {
+    width: 100%; height: 5px; background: var(--muted2);
+    border-radius: 100px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; width: 0%;
+    background: linear-gradient(90deg, #FF4D8D, #7B5EFF);
+    border-radius: 100px;
+    animation: fillProgress 1s cubic-bezier(.16,1,.3,1) forwards .5s;
+  }
+  @keyframes fillProgress { to { width: 40%; } }
+  .step-dots { display: flex; gap: 6px; margin-top: 10px; justify-content: center; }
+  .step-dot { width: 28px; height: 3px; border-radius: 100px; background: var(--muted2); }
+  .step-dot.active { background: linear-gradient(90deg, #FF4D8D, #7B5EFF); }
+  .step-dot.done   { background: rgba(255,255,255,0.2); }
+
+  /* ── CHOSEN ANSWER (chat bubble) ── */
+  .chosen-wrap {
+    width: 100%; max-width: 400px;
+    margin-bottom: 24px;
+    opacity: 0; animation: fadeUp .55s ease forwards .25s;
+  }
+  .chosen-label {
+    font-size: 11px; color: var(--muted);
+    letter-spacing: .05em; text-transform: uppercase;
+    margin-bottom: 12px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .chosen-label::before {
+    content: ''; display: block; width: 20px; height: 1px; background: var(--muted2);
+  }
+  .chosen-row {
+    display: flex; justify-content: flex-end;
+  }
+  .chosen-bubble {
+    max-width: 78%;
+    padding: 12px 16px;
+    border-radius: 18px 18px 4px 18px;
+    font-size: 14px; font-weight: 400; line-height: 1.5;
+    color: var(--white);
+    position: relative;
+    opacity: 0;
+    animation: bubblePop .45s cubic-bezier(.34,1.56,.64,1) forwards .7s;
+    transform: scale(.85);
+  }
+  @keyframes bubblePop { to { transform: scale(1); opacity: 1; } }
+
+  .chosen-bubble.good {
+    background: rgba(34,197,94,.12);
+    border: 1px solid rgba(34,197,94,.25);
+  }
+  .chosen-bubble.mid {
+    background: rgba(245,158,11,.1);
+    border: 1px solid rgba(245,158,11,.22);
+  }
+  .chosen-bubble.bad {
+    background: rgba(239,68,68,.1);
+    border: 1px solid rgba(239,68,68,.2);
+  }
+
+  /* ── RESULT CARD ── */
+  .result-card {
+    width: 100%; max-width: 400px;
+    border-radius: 20px;
+    padding: 24px 22px;
+    position: relative;
+    overflow: hidden;
+    opacity: 0; animation: fadeUp .6s ease forwards .95s;
+    margin-bottom: 20px;
+  }
+  .result-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.12), transparent);
+  }
+  .result-card.good {
+    background: rgba(34,197,94,.06);
+    border: 1px solid rgba(34,197,94,.18);
+    box-shadow: 0 8px 40px rgba(34,197,94,.08);
+  }
+  .result-card.mid {
+    background: rgba(245,158,11,.06);
+    border: 1px solid rgba(245,158,11,.18);
+    box-shadow: 0 8px 40px rgba(245,158,11,.08);
+  }
+  .result-card.bad {
+    background: rgba(239,68,68,.06);
+    border: 1px solid rgba(239,68,68,.16);
+    box-shadow: 0 8px 40px rgba(239,68,68,.08);
+  }
+
+  /* Status row */
+  .status-row {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 18px;
+  }
+  .status-icon {
+    width: 40px; height: 40px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+  .good  .status-icon { background: rgba(34,197,94,.15); }
+  .mid   .status-icon { background: rgba(245,158,11,.15); }
+  .bad   .status-icon { background: rgba(239,68,68,.15); }
+
+  .status-text-wrap { flex: 1; }
+  .status-headline {
+    font-family: 'Syne', sans-serif;
+    font-size: 17px; font-weight: 800;
+    line-height: 1.2; margin-bottom: 2px;
+  }
+  .good  .status-headline { color: var(--color-good); }
+  .mid   .status-headline { color: var(--color-mid); }
+  .bad   .status-headline { color: var(--color-bad); }
+
+  .status-sub {
+    font-size: 11px; font-weight: 400; color: var(--muted);
+    letter-spacing: .03em;
+  }
+
+  /* Divider */
+  .card-divider {
+    height: 1px; background: var(--glass-border); margin: 18px 0;
+  }
+
+  /* Feedback text */
+  .feedback-text {
+    font-size: 14px; font-weight: 300;
+    color: rgba(255,255,255,.62); line-height: 1.75;
+  }
+  .feedback-text strong {
+    color: rgba(255,255,255,.9); font-weight: 500;
+  }
+
+  /* ── REWARD ROW ── */
+  .reward-row {
+    width: 100%; max-width: 400px;
+    display: flex; gap: 10px;
+    margin-bottom: 24px;
+    opacity: 0; animation: fadeUp .55s ease forwards 1.1s;
+  }
+
+  .reward-chip {
+    flex: 1; display: flex; align-items: center; gap: 9px;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px; padding: 12px 14px;
+    position: relative; overflow: hidden;
+  }
+  .reward-chip::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,.02), transparent);
+  }
+  .reward-icon { font-size: 20px; flex-shrink: 0; }
+  .reward-info { flex: 1; }
+  .reward-value {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px; font-weight: 700; color: var(--white);
+    line-height: 1;
+  }
+  .reward-label {
+    font-size: 10px; color: var(--muted);
+    margin-top: 2px; letter-spacing: .03em;
+  }
+
+  /* XP bar */
+  .xp-bar-wrap {
+    width: 100%; max-width: 400px;
+    margin-bottom: 28px;
+    opacity: 0; animation: fadeUp .55s ease forwards 1.2s;
+  }
+  .xp-bar-header {
+    display: flex; justify-content: space-between;
+    font-size: 11px; color: var(--muted); margin-bottom: 8px;
+    letter-spacing: .03em;
+  }
+  .xp-bar-header span:last-child { color: rgba(255,255,255,.5); }
+  .xp-track {
+    height: 6px; background: var(--muted2);
+    border-radius: 100px; overflow: hidden; position: relative;
+  }
+  .xp-fill {
+    height: 100%; width: 0%;
+    border-radius: 100px;
+    animation: fillXP 1.2s cubic-bezier(.16,1,.3,1) forwards 1.5s;
+  }
+  .xp-fill.good { background: linear-gradient(90deg, var(--color-good), #4ADE80); }
+  .xp-fill.mid  { background: linear-gradient(90deg, var(--color-mid), #FCD34D); }
+  .xp-fill.bad  { background: var(--muted2); }
+
+  /* ── CTA BUTTON ── */
+  .cta-wrap {
+    width: 100%; max-width: 400px;
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+    opacity: 0; animation: fadeUp .6s ease forwards 1.3s;
+  }
+  .cta-btn {
+    width: 100%; padding: 18px 32px;
+    background: linear-gradient(135deg, #E8407A 0%, #A855F7 100%);
+    border: none; border-radius: 14px;
+    color: #fff; font-family: 'Syne', sans-serif;
+    font-size: 17px; font-weight: 700; letter-spacing: -.01em;
+    cursor: pointer; position: relative; overflow: hidden;
+    transition: transform .18s ease, box-shadow .18s ease;
+    box-shadow: 0 8px 32px rgba(232,64,122,.35), 0 2px 8px rgba(0,0,0,.4);
+  }
+  .cta-btn::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,.14) 0%, transparent 55%);
+  }
+  .cta-btn::after {
+    content: ''; position: absolute;
+    top: -50%; left: -60%; width: 50%; height: 200%;
+    background: linear-gradient(105deg, transparent, rgba(255,255,255,.14), transparent);
+    transform: skewX(-20deg);
+    animation: shimmer 3.5s ease infinite 2.5s;
+  }
+  @keyframes shimmer {
+    0%   { left: -60%; opacity: 0; }
+    5%   { opacity: 1; }
+    50%  { left: 120%; opacity: 0; }
+    100% { left: 120%; opacity: 0; }
+  }
+  .cta-btn:hover {
+    transform: translateY(-2px) scale(1.01);
+    box-shadow: 0 12px 40px rgba(232,64,122,.45), 0 4px 12px rgba(0,0,0,.4);
+  }
+  .cta-btn:active { transform: translateY(0) scale(.99); }
+  .cta-hint { font-size: 12px; color: var(--muted); }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fillXP { to { width: var(--xp-target); } }
+
+  ::-webkit-scrollbar { width: 0; }
+</style>
+</head>
+<body>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="bg-canvas" id="bgCanvas"></div>
+
+<main class="page" id="mainPage">
+
+  <!-- TOP PROGRESS -->
+  <div class="top-bar">
+    <div class="progress-header">
+      <span class="question-label">Pergunta 1 de 5</span>
+      <span class="xp-pill" id="xpPill">⚡ 0 XP</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill"></div>
+    </div>
+    <div class="step-dots">
+      <div class="step-dot done"></div>
+      <div class="step-dot active"></div>
+      <div class="step-dot"></div>
+      <div class="step-dot"></div>
+      <div class="step-dot"></div>
+    </div>
+  </div>
+
+  <!-- CHOSEN ANSWER -->
+  <div class="chosen-wrap">
+    <p class="chosen-label">Sua resposta</p>
+    <div class="chosen-row">
+      <div class="chosen-bubble" id="chosenBubble"></div>
+    </div>
+  </div>
+
+  <!-- RESULT CARD -->
+  <div class="result-card" id="resultCard">
+    <div class="status-row">
+      <div class="status-icon" id="statusIcon"></div>
+      <div class="status-text-wrap">
+        <p class="status-headline" id="statusHeadline"></p>
+        <p class="status-sub" id="statusSub"></p>
+      </div>
+    </div>
+    <div class="card-divider"></div>
+    <p class="feedback-text" id="feedbackText"></p>
+  </div>
+
+  <!-- REWARD CHIPS -->
+  <div class="reward-row" id="rewardRow">
+    <div class="reward-chip" id="chip1">
+      <span class="reward-icon" id="chip1Icon"></span>
+      <div class="reward-info">
+        <p class="reward-value" id="chip1Value"></p>
+        <p class="reward-label" id="chip1Label"></p>
+      </div>
+    </div>
+    <div class="reward-chip" id="chip2">
+      <span class="reward-icon" id="chip2Icon"></span>
+      <div class="reward-info">
+        <p class="reward-value" id="chip2Value"></p>
+        <p class="reward-label" id="chip2Label"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- XP BAR -->
+  <div class="xp-bar-wrap">
+    <div class="xp-bar-header">
+      <span>BARRA DE XP</span>
+      <span id="xpBarLabel"></span>
+    </div>
+    <div class="xp-track">
+      <div class="xp-fill" id="xpFill"></div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-wrap">
+    <button class="cta-btn" onclick="goNext()">Próximo desafio →</button>
+    <p class="cta-hint">mais 4 perguntas pra te revelar</p>
+  </div>
+
+</main>
+
+<script>
+  /* ── BG BUBBLES ── */
+  const canvas = document.getElementById('bgCanvas');
+  [120,180,90,150,200,80,140,100,160,70].forEach((w, i) => {
+    const el = document.createElement('div');
+    el.className = 'bubble';
+    el.style.cssText = `
+      width:${w}px; height:36px;
+      left:${Math.random()*90}%; top:${10+Math.random()*80}%;
+      animation-duration:${12+Math.random()*16}s;
+      animation-delay:${Math.random()*-20}s;
+      border-radius:${i%2===0?'18px 18px 18px 4px':'18px 18px 4px 18px'};
+    `;
+    canvas.appendChild(el);
+  });
+
+  /* ── DATA PER ANSWER ── */
+  const data = {
+    B: {
+      cls: 'good',
+      chosenText: 'isso foi um sim disfarçado 😏',
+      statusIcon: '✔',
+      statusHeadline: 'Boa.',
+      statusSub: 'Você saiu do óbvio.',
+      feedback: `Aqui você fez algo que a maioria <strong>não faz</strong>: não respondeu no automático.\n\nVocê criou curiosidade sem forçar conversa. Essa resposta mantém a interação viva — e abre espaço pra ela investir também.\n\nO "kkkk" virou tensão. Isso é o jogo.`,
+      xp: 10,
+      xpTarget: '55%',
+      chip1Icon: '⚡', chip1Value: '+10 XP', chip1Label: 'pontos ganhos',
+      chip2Icon: '🏅', chip2Value: 'Saiu do óbvio', chip2Label: 'selo desbloqueado',
+      xpBarLabel: '10 / 50 XP',
+    },
+    A: {
+      cls: 'mid',
+      chosenText: 'kkkk vc ri de tudo?',
+      statusIcon: '⚠',
+      statusHeadline: 'Não foi ruim…',
+      statusSub: 'Mas também não ajudou muito.',
+      feedback: `Essa resposta é <strong>neutra demais</strong>.\n\nNão cria interesse, não cria curiosidade. Só mantém a conversa parada no mesmo lugar.\n\nÉ assim que muitas conversas morrem sem você perceber — ninguém foi embora, mas ninguém foi pra frente também.`,
+      xp: 5,
+      xpTarget: '30%',
+      chip1Icon: '⚡', chip1Value: '+5 XP', chip1Label: 'pontos ganhos',
+      chip2Icon: '🏅', chip2Value: 'Sobreviveu', chip2Label: 'selo desbloqueado',
+      xpBarLabel: '5 / 50 XP',
+    },
+    C: {
+      cls: 'bad',
+      chosenText: 'pq vc riu?',
+      statusIcon: '✕',
+      statusHeadline: 'Você matou o ritmo.',
+      statusSub: 'Erro comum detectado.',
+      feedback: `Pergunta óbvia, sem emoção, sem intenção.\n\nParece interrogatório — e isso <strong>cansa rápido</strong>.\n\nÉ exatamente esse tipo de resposta que faz a conversa esfriar e virar vácuo depois. Ela responde com monossílabo, você insiste, ela some.`,
+      xp: 0,
+      xpTarget: '4%',
+      chip1Icon: '⚡', chip1Value: '+0 XP', chip1Label: 'pontos ganhos',
+      chip2Icon: '🚨', chip2Value: 'Erro comum', chip2Label: 'alerta detectado',
+      xpBarLabel: '0 / 50 XP',
+    },
+  };
+
+  /* ── READ PARAM ── */
+  const params  = new URLSearchParams(window.location.search);
+  const answer  = (params.get('answer') || 'B').toUpperCase();
+  const d       = data[answer] || data['B'];
+
+  /* ── APPLY ── */
+  const page = document.getElementById('mainPage');
+
+  // Chosen bubble
+  const bubble = document.getElementById('chosenBubble');
+  bubble.textContent = d.chosenText;
+  bubble.classList.add(d.cls);
+
+  // Result card
+  const card = document.getElementById('resultCard');
+  card.classList.add(d.cls);
+  document.getElementById('statusIcon').textContent     = d.statusIcon;
+  document.getElementById('statusHeadline').textContent = d.statusHeadline;
+  document.getElementById('statusSub').textContent      = d.statusSub;
+
+  // Feedback (with line breaks & bold)
+  const fbEl = document.getElementById('feedbackText');
+  fbEl.innerHTML = d.feedback.replace(/\n\n/g, '<br><br>');
+
+  // XP pill
+  document.getElementById('xpPill').textContent = `⚡ ${d.xp} XP`;
+
+  // Chips
+  document.getElementById('chip1Icon').textContent  = d.chip1Icon;
+  document.getElementById('chip1Value').textContent = d.chip1Value;
+  document.getElementById('chip1Label').textContent = d.chip1Label;
+  document.getElementById('chip2Icon').textContent  = d.chip2Icon;
+  document.getElementById('chip2Value').textContent = d.chip2Value;
+  document.getElementById('chip2Label').textContent = d.chip2Label;
+
+  // XP bar
+  document.getElementById('xpBarLabel').textContent = d.xpBarLabel;
+  const xpFill = document.getElementById('xpFill');
+  xpFill.classList.add(d.cls);
+  xpFill.style.setProperty('--xp-target', d.xpTarget);
+
+  /* ── DEMO: cycle through answers ── */
+  // To preview each state, add ?answer=A, ?answer=B or ?answer=C to the URL.
+  // Default is B (correct).
+
+  /* ── NEXT ── */
+  function goNext() {
+    page.style.opacity = '0';
+    page.style.transition = 'opacity .4s ease';
+    setTimeout(() => {
+      // Connect to tela 4: window.location.href = 'tela4.html';
+      alert('Próxima tela — conecte a tela 4 aqui.');
+    }, 420);
+  }
+
+  /* ── PARTICLE BURST on load (good answer only) ── */
+  if (d.cls === 'good') {
+    setTimeout(() => spawnParticles(), 1200);
+  }
+
+  function spawnParticles() {
+    const colors = ['#FF4D8D','#A855F7','#22C55E','#FCD34D'];
+    for (let i = 0; i < 18; i++) {
+      const p = document.createElement('div');
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      const size  = 4 + Math.random() * 5;
+      const angle = Math.random() * 360;
+      const dist  = 80 + Math.random() * 120;
+      const dur   = 600 + Math.random() * 400;
+      p.style.cssText = `
+        position:fixed;
+        width:${size}px; height:${size}px;
+        border-radius:50%;
+        background:${color};
+        top:50%; left:50%;
+        pointer-events:none;
+        z-index:999;
+        transform:translate(-50%,-50%);
+        transition:transform ${dur}ms cubic-bezier(.2,.8,.3,1), opacity ${dur}ms ease;
+        opacity:1;
+      `;
+      document.body.appendChild(p);
+      requestAnimationFrame(() => {
+        const rad = angle * Math.PI / 180;
+        p.style.transform = `translate(calc(-50% + ${Math.cos(rad)*dist}px), calc(-50% + ${Math.sin(rad)*dist}px))`;
+        p.style.opacity = '0';
+      });
+      setTimeout(() => p.remove(), dur + 100);
+    }
+  }
+</script>
+</body>
+</html>

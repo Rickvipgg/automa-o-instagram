@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulador de Sedução — Insight</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0A0A0C;
+    --accent: #E8407A;
+    --accent2: #7B5EFF;
+    --white: #FFFFFF;
+    --muted: #6B6B7A;
+    --muted2: #3A3A4A;
+    --glass: rgba(255,255,255,0.04);
+    --glass-border: rgba(255,255,255,0.07);
+  }
+
+  html, body {
+    min-height: 100%; background: var(--bg);
+    color: var(--white); font-family: 'DM Sans', sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* ── ORBS ── */
+  .orb { position: fixed; border-radius: 50%; filter: blur(90px); pointer-events: none; z-index: 0; }
+  .orb-1 {
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(232,64,122,.14) 0%, transparent 70%);
+    top: -100px; right: -80px;
+    animation: orbPulse 6s ease-in-out infinite alternate;
+  }
+  .orb-2 {
+    width: 350px; height: 350px;
+    background: radial-gradient(circle, rgba(123,94,255,.12) 0%, transparent 70%);
+    bottom: -80px; left: -60px;
+    animation: orbPulse 8s ease-in-out infinite alternate-reverse;
+  }
+  @keyframes orbPulse {
+    from { transform: scale(1); opacity: .7; }
+    to   { transform: scale(1.15); opacity: 1; }
+  }
+
+  /* ── BG BUBBLES ── */
+  .bg-canvas { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
+  .bubble {
+    position: absolute; background: var(--glass);
+    border: 1px solid var(--glass-border); opacity: 0;
+    animation: floatBubble linear infinite;
+  }
+  .bubble::after {
+    content: ''; position: absolute; inset: 0; border-radius: inherit;
+    background: linear-gradient(135deg, rgba(232,64,122,.05), rgba(123,94,255,.05));
+  }
+  @keyframes floatBubble {
+    0%   { opacity: 0; transform: translateY(20px); }
+    10%  { opacity: 1; } 85% { opacity: .5; }
+    100% { opacity: 0; transform: translateY(-60px); }
+  }
+
+  /* ── PAGE ── */
+  .page {
+    position: relative; z-index: 1;
+    min-height: 100vh; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 48px 24px 90px;
+  }
+
+  /* ── TOP BAR ── */
+  .top-bar {
+    width: 100%; max-width: 420px; margin-bottom: 24px;
+    opacity: 0; animation: fadeUp .5s ease forwards .05s;
+  }
+  .progress-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .question-label { font-size: 12px; font-weight: 500; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; }
+  .ranking-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(123,94,255,.12); border: 1px solid rgba(123,94,255,.22);
+    border-radius: 100px; padding: 4px 11px;
+    font-size: 11px; font-weight: 500; color: #A78BFA;
+  }
+  .ranking-pill .dot { width: 5px; height: 5px; background: #7B5EFF; border-radius: 50%; box-shadow: 0 0 6px #7B5EFF; }
+  .progress-track { height: 5px; background: var(--muted2); border-radius: 100px; overflow: hidden; }
+  .progress-fill {
+    height: 100%; width: 0%;
+    background: linear-gradient(90deg, #FF4D8D, #7B5EFF); border-radius: 100px;
+    animation: fillProg 1s cubic-bezier(.16,1,.3,1) forwards .4s;
+  }
+  @keyframes fillProg { to { width: 70%; } }
+  .step-dots { display: flex; gap: 6px; margin-top: 10px; justify-content: center; }
+  .step-dot { width: 28px; height: 3px; border-radius: 100px; background: var(--muted2); }
+  .step-dot.done   { background: rgba(255,255,255,.22); }
+  .step-dot.active { background: linear-gradient(90deg, #FF4D8D, #7B5EFF); }
+
+  /* ── SECTION TAG ── */
+  .section-tag {
+    width: 100%; max-width: 420px; margin-bottom: 16px;
+    display: flex; align-items: center; gap: 10px;
+    opacity: 0; animation: fadeUp .5s ease forwards .18s;
+  }
+  .section-tag::before, .section-tag::after {
+    content: ''; flex: 1; height: 1px; background: var(--glass-border);
+  }
+  .section-tag span {
+    font-size: 10px; color: var(--muted); letter-spacing: .08em; text-transform: uppercase;
+    background: rgba(255,255,255,.03); border: 1px solid var(--glass-border);
+    border-radius: 100px; padding: 4px 12px; white-space: nowrap;
+  }
+
+  /* ── HOOK TEXT ── */
+  .hook-block {
+    width: 100%; max-width: 420px; margin-bottom: 20px; text-align: center;
+    opacity: 0; animation: fadeUp .55s ease forwards .28s;
+  }
+  .hook-block p {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(17px, 4.5vw, 22px); font-weight: 700;
+    line-height: 1.3; letter-spacing: -.02em; color: var(--white);
+  }
+  .hook-block p em {
+    font-style: normal;
+    background: linear-gradient(90deg, #FF4D8D, #A855F7);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .hook-sub {
+    font-size: 13px; color: rgba(255,255,255,.4); margin-top: 8px;
+    font-weight: 300; line-height: 1.5;
+  }
+
+  /* ── VIDEO WRAPPER ── */
+  .video-outer {
+    width: 100%; max-width: 420px; margin-bottom: 20px;
+    opacity: 0; animation: fadeUp .6s ease forwards .38s;
+  }
+
+  /* Glow ring around player */
+  .video-glow-ring {
+    border-radius: 20px;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(232,64,122,.35), rgba(123,94,255,.35), rgba(232,64,122,.35));
+    background-size: 200% 200%;
+    animation: ringShift 4s ease infinite;
+    box-shadow: 0 0 40px rgba(232,64,122,.15), 0 0 80px rgba(123,94,255,.1);
+  }
+  @keyframes ringShift {
+    0%,100% { background-position: 0% 50%; }
+    50%      { background-position: 100% 50%; }
+  }
+
+  /* The actual player container */
+  .video-player-wrap {
+    background: #111114;
+    border-radius: 19px;
+    overflow: hidden;
+    position: relative;
+    /* Aspect ratio 16:9 */
+    aspect-ratio: 16 / 9;
+    width: 100%;
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 14px;
+  }
+
+  /* ── vTURB PLACEHOLDER ──
+     Substitua o conteúdo dentro de .video-player-wrap
+     pelo código de incorporação do vTURB.
+     Mantenha a .video-player-wrap e a .video-glow-ring.
+  ── */
+  .vtb-placeholder {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 12px; width: 100%; height: 100%;
+    position: absolute; inset: 0;
+  }
+  .vtb-play-btn {
+    width: 60px; height: 60px; border-radius: 50%;
+    background: linear-gradient(135deg, #E8407A, #A855F7);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; position: relative;
+    box-shadow: 0 6px 30px rgba(232,64,122,.4);
+    transition: transform .2s ease, box-shadow .2s ease;
+  }
+  .vtb-play-btn:hover { transform: scale(1.08); box-shadow: 0 10px 40px rgba(232,64,122,.55); }
+  .vtb-play-btn::before {
+    content: ''; position: absolute; inset: -6px; border-radius: 50%;
+    border: 1px solid rgba(232,64,122,.3);
+    animation: pingRing 2s ease-out infinite;
+  }
+  .vtb-play-btn::after {
+    content: ''; position: absolute; inset: -12px; border-radius: 50%;
+    border: 1px solid rgba(232,64,122,.15);
+    animation: pingRing 2s ease-out infinite .4s;
+  }
+  @keyframes pingRing {
+    0%   { transform: scale(1); opacity: 1; }
+    100% { transform: scale(1.5); opacity: 0; }
+  }
+  .vtb-play-icon {
+    width: 0; height: 0;
+    border-style: solid;
+    border-width: 10px 0 10px 18px;
+    border-color: transparent transparent transparent #fff;
+    margin-left: 4px;
+  }
+  .vtb-label {
+    font-size: 13px; color: rgba(255,255,255,.35); letter-spacing: .02em; text-align: center;
+    line-height: 1.5;
+  }
+  .vtb-label strong { color: rgba(255,255,255,.6); font-weight: 500; display: block; margin-bottom: 2px; }
+  .vtb-duration {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px; color: var(--muted); margin-top: 4px;
+  }
+  .vtb-duration::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    background: #FF4D8D; box-shadow: 0 0 6px #FF4D8D;
+    animation: blink 1.4s ease infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:.3;} }
+
+  /* ── WATCHED TRIGGER STRIP ── */
+  .watch-hint {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    font-size: 11px; color: var(--muted); margin-top: 10px;
+    opacity: 0; animation: fadeUp .5s ease forwards .5s;
+  }
+  .watch-hint .arrow { font-size: 14px; animation: bounceDown 1.5s ease-in-out infinite; }
+  @keyframes bounceDown {
+    0%,100% { transform: translateY(0); }
+    50%      { transform: translateY(4px); }
+  }
+
+  /* ── REWARD SECTION (hidden until watched) ── */
+  .reward-section {
+    width: 100%; max-width: 420px;
+    display: flex; flex-direction: column; gap: 12px;
+    opacity: 0; pointer-events: none;
+    transition: opacity .5s ease, transform .5s ease;
+    transform: translateY(16px);
+  }
+  .reward-section.unlocked {
+    opacity: 1; pointer-events: auto; transform: translateY(0);
+  }
+
+  /* XP burst row */
+  .xp-burst {
+    display: flex; align-items: center; gap: 14px;
+    background: var(--glass); border: 1px solid var(--glass-border);
+    border-radius: 14px; padding: 14px 16px; position: relative; overflow: hidden;
+  }
+  .xp-burst::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(232,64,122,.05), rgba(123,94,255,.04));
+  }
+  .xp-burst-icon { font-size: 26px; }
+  .xp-burst-info { flex: 1; }
+  .xp-burst-title {
+    font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700;
+    color: var(--white); line-height: 1;
+  }
+  .xp-burst-sub { font-size: 11px; color: var(--muted); margin-top: 3px; }
+  .xp-burst-value {
+    font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800;
+    background: linear-gradient(90deg, #FF4D8D, #A855F7);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+
+  /* Badge chip */
+  .badge-chip {
+    display: flex; align-items: center; gap: 12px;
+    background: rgba(123,94,255,.08); border: 1px solid rgba(123,94,255,.2);
+    border-radius: 14px; padding: 13px 16px;
+  }
+  .badge-chip-icon { font-size: 22px; }
+  .badge-chip-info { flex: 1; }
+  .badge-chip-title {
+    font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: #A78BFA;
+  }
+  .badge-chip-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .badge-chip-label {
+    font-size: 10px; font-weight: 600; color: #A78BFA;
+    background: rgba(123,94,255,.15); border: 1px solid rgba(123,94,255,.2);
+    border-radius: 100px; padding: 3px 9px; white-space: nowrap;
+  }
+
+  /* Teaser strip */
+  .teaser-strip {
+    background: rgba(255,255,255,.025); border: 1px solid var(--glass-border);
+    border-radius: 14px; padding: 14px 16px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .teaser-icon { font-size: 20px; flex-shrink: 0; }
+  .teaser-text { flex: 1; font-size: 13px; color: rgba(255,255,255,.5); line-height: 1.5; font-weight: 300; }
+  .teaser-text strong { color: rgba(255,255,255,.8); font-weight: 500; }
+
+  /* ── CTA ── */
+  .cta-wrap {
+    width: 100%; max-width: 420px; margin-top: 4px;
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+  }
+  .cta-btn {
+    width: 100%; padding: 18px 32px;
+    background: linear-gradient(135deg, #E8407A 0%, #A855F7 100%);
+    border: none; border-radius: 14px; color: #fff;
+    font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700; letter-spacing: -.01em;
+    cursor: pointer; position: relative; overflow: hidden;
+    transition: transform .18s ease, box-shadow .18s ease;
+    box-shadow: 0 8px 32px rgba(232,64,122,.35), 0 2px 8px rgba(0,0,0,.4);
+  }
+  .cta-btn::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,.14) 0%, transparent 55%);
+  }
+  .cta-btn::after {
+    content: ''; position: absolute;
+    top: -50%; left: -60%; width: 50%; height: 200%;
+    background: linear-gradient(105deg, transparent, rgba(255,255,255,.14), transparent);
+    transform: skewX(-20deg);
+    animation: shimmer 3.5s ease infinite 2.5s;
+  }
+  @keyframes shimmer {
+    0%{left:-60%;opacity:0;} 5%{opacity:1;} 50%{left:120%;opacity:0;} 100%{left:120%;opacity:0;}
+  }
+  .cta-btn:hover { transform: translateY(-2px) scale(1.01); box-shadow: 0 12px 40px rgba(232,64,122,.45); }
+  .cta-btn:active { transform: translateY(0) scale(.99); }
+  .cta-btn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+  .cta-hint { font-size: 12px; color: var(--muted); }
+
+  /* ── SIMULATE WATCH BUTTON (dev helper) ── */
+  .dev-btn {
+    margin-top: 6px;
+    background: none; border: 1px dashed var(--muted2);
+    border-radius: 8px; padding: 6px 14px;
+    font-size: 11px; color: var(--muted); cursor: pointer;
+    transition: border-color .2s, color .2s;
+  }
+  .dev-btn:hover { border-color: var(--muted); color: rgba(255,255,255,.5); }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  ::-webkit-scrollbar { width: 0; }
+</style>
+</head>
+<body>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="bg-canvas" id="bgCanvas"></div>
+
+<main class="page" id="mainPage">
+
+  <!-- ── TOP BAR ── -->
+  <div class="top-bar">
+    <div class="progress-header">
+      <span class="question-label">Fase 2 de 5</span>
+      <span class="ranking-pill"><span class="dot"></span>Melhor que 78% das pessoas</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill"></div></div>
+    <div class="step-dots">
+      <div class="step-dot done"></div>
+      <div class="step-dot done"></div>
+      <div class="step-dot active"></div>
+      <div class="step-dot"></div>
+      <div class="step-dot"></div>
+    </div>
+  </div>
+
+  <!-- ── SECTION TAG ── -->
+  <div class="section-tag"><span>🧠 Momento de insight</span></div>
+
+  <!-- ── HOOK ── -->
+  <div class="hook-block">
+    <p>Se você já <em>travou</em> numa conversa…<br>isso aqui explica tudo.</p>
+    <p class="hook-sub">Assista antes de continuar — vai fazer sentido com o que você acabou de responder.</p>
+  </div>
+
+  <!-- ── VIDEO ── -->
+  <div class="video-outer">
+    <div class="video-glow-ring">
+      <div class="video-player-wrap" id="playerWrap">
+
+        <!-- ============================================================
+             👇 COLE AQUI O CÓDIGO DE INCORPORAÇÃO DO vTURB
+             Remova o bloco .vtb-placeholder abaixo após inserir o vTURB.
+             Mantenha: .video-player-wrap e .video-glow-ring intactos.
+             ============================================================ -->
+
+        <div class="vtb-placeholder" id="vtbPlaceholder">
+          <div class="vtb-play-btn" onclick="simulateWatch()">
+            <div class="vtb-play-icon"></div>
+          </div>
+          <div class="vtb-label">
+            <strong>Cole o vTURB aqui</strong>
+            video/incorporação do player
+          </div>
+          <div class="vtb-duration">Vídeo curto — ~45 seg</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- hint -->
+  <div class="watch-hint">
+    <span class="arrow">↓</span>
+    Assista até o fim pra desbloquear o próximo passo
+  </div>
+
+  <!-- ── REWARDS (bloqueados até assistir) ── -->
+  <div class="reward-section" id="rewardSection">
+
+    <div class="xp-burst">
+      <span class="xp-burst-icon">⚡</span>
+      <div class="xp-burst-info">
+        <p class="xp-burst-title">+20 XP desbloqueados</p>
+        <p class="xp-burst-sub">Por assistir ao insight completo</p>
+      </div>
+      <span class="xp-burst-value">+20</span>
+    </div>
+
+    <div class="badge-chip">
+      <span class="badge-chip-icon">🏅</span>
+      <div class="badge-chip-info">
+        <p class="badge-chip-title">Selo conquistado</p>
+        <p class="badge-chip-sub">Você entrou pra minoria que entende o jogo</p>
+      </div>
+      <span class="badge-chip-label">Comprometido</span>
+    </div>
+
+    <div class="teaser-strip">
+      <span class="teaser-icon">🔓</span>
+      <p class="teaser-text">
+        "E isso que você viu aqui… <strong>é só o básico.</strong><br>
+        As próximas perguntas vão mostrar o que realmente separa quem retém atenção de quem perde."
+      </p>
+    </div>
+
+    <div class="cta-wrap">
+      <button class="cta-btn" id="ctaBtn" onclick="goNext()">Continuar o teste →</button>
+      <p class="cta-hint">pergunta 3 de 5 — quase lá</p>
+    </div>
+
+  </div>
+
+  <!-- DEV: simular fim do vídeo -->
+  <button class="dev-btn" onclick="simulateWatch()" id="devBtn">
+    [ dev ] simular fim do vídeo →
+  </button>
+
+</main>
+
+<script>
+  /* ── BG BUBBLES ── */
+  const canvas = document.getElementById('bgCanvas');
+  [120,180,90,150,200,80,140,100,160,70].forEach((w,i)=>{
+    const el=document.createElement('div'); el.className='bubble';
+    el.style.cssText=`width:${w}px;height:36px;left:${Math.random()*90}%;top:${10+Math.random()*80}%;animation-duration:${12+Math.random()*16}s;animation-delay:${Math.random()*-20}s;border-radius:${i%2===0?'18px 18px 18px 4px':'18px 18px 4px 18px'};`;
+    canvas.appendChild(el);
+  });
+
+  /* ── WATCH COMPLETE ── */
+  let watched = false;
+
+  function simulateWatch() {
+    if (watched) return;
+    watched = true;
+
+    // Hide placeholder, show green pulse briefly
+    const placeholder = document.getElementById('vtbPlaceholder');
+    if (placeholder) {
+      placeholder.style.transition = 'opacity .4s ease';
+      placeholder.style.opacity = '0';
+      setTimeout(()=>placeholder.remove(), 400);
+    }
+
+    // Hide dev button
+    const devBtn = document.getElementById('devBtn');
+    if (devBtn) devBtn.style.display = 'none';
+
+    // Hide watch hint
+    document.querySelector('.watch-hint').style.opacity = '0';
+
+    // Unlock rewards
+    setTimeout(()=>{
+      const section = document.getElementById('rewardSection');
+      section.classList.add('unlocked');
+      spawnParticles();
+    }, 500);
+  }
+
+  /* ── vTURB callback hook ──
+     Quando o vídeo terminar no vTURB, chame window.onVideoEnd()
+     Exemplo dentro do vTURB: onEnd: () => window.onVideoEnd && window.onVideoEnd()
+  ── */
+  window.onVideoEnd = simulateWatch;
+
+  /* ── PARTICLES ── */
+  function spawnParticles(count=22) {
+    const colors=['#FF4D8D','#A855F7','#22C55E','#FCD34D','#F97316'];
+    for(let i=0;i<count;i++){
+      const p=document.createElement('div');
+      const color=colors[Math.floor(Math.random()*colors.length)];
+      const size=3+Math.random()*6;
+      const angle=Math.random()*360;
+      const dist=90+Math.random()*130;
+      const dur=600+Math.random()*500;
+      p.style.cssText=`position:fixed;width:${size}px;height:${size}px;border-radius:50%;background:${color};top:45%;left:50%;pointer-events:none;z-index:999;transform:translate(-50%,-50%);transition:transform ${dur}ms cubic-bezier(.2,.8,.3,1),opacity ${dur}ms ease;opacity:1;`;
+      document.body.appendChild(p);
+      requestAnimationFrame(()=>{
+        const r=angle*Math.PI/180;
+        p.style.transform=`translate(calc(-50% + ${Math.cos(r)*dist}px),calc(-50% + ${Math.sin(r)*dist}px))`;
+        p.style.opacity='0';
+      });
+      setTimeout(()=>p.remove(),dur+100);
+    }
+  }
+
+  /* ── NEXT ── */
+  function goNext() {
+    const page = document.getElementById('mainPage');
+    page.style.opacity = '0';
+    page.style.transition = 'opacity .4s ease';
+    setTimeout(()=>{
+      // window.location.href = 'tela6.html';
+      alert('Conecte a próxima tela aqui.');
+    }, 420);
+  }
+</script>
+</body>
+</html>
