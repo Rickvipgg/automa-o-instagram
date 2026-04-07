@@ -536,13 +536,17 @@
   // Default is B (correct).
 
   /* ── NEXT ── */
-  function goNext() {
-    page.style.opacity = '0';
-    page.style.transition = 'opacity .4s ease';
+  function nextQuestion() {
+    const page = document.querySelector('.page');
+
+    if (page) {
+      page.style.opacity = '0';
+      page.style.transition = 'opacity 0.4s ease';
+    }
+
     setTimeout(() => {
-      // Connect to tela 4: window.location.href = 'tela4.html';
-      alert('Próxima tela — conecte a tela 4 aqui.');
-    }, 420);
+      window.location.href = "tela4.html";
+    }, 400);
   }
 
   /* ── PARTICLE BURST on load (good answer only) ── */
