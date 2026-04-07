@@ -536,18 +536,7 @@
   // Default is B (correct).
 
   /* ── NEXT ── */
-  function nextQuestion() {
-    const page = document.querySelector('.page');
-
-    if (page) {
-      page.style.opacity = '0';
-      page.style.transition = 'opacity 0.4s ease';
-    }
-
-    setTimeout(() => {
-      window.location.href = "tela4.html";
-    }, 400);
-  }
+<button class="cta-btn" onclick="nextQuestion()">Próximo desafio →</button>
 
   /* ── PARTICLE BURST on load (good answer only) ── */
   if (d.cls === 'good') {
