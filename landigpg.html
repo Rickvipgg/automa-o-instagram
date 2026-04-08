@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conversa Alpha: Anti-Vácuo</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:     #0A0A0C;
+  --bg2:    #0F0F12;
+  --accent: #E8407A;
+  --purple: #7B5EFF;
+  --white:  #FFFFFF;
+  --muted:  #6B6B7A;
+  --muted2: #3A3A4A;
+  --glass:  rgba(255,255,255,0.04);
+  --gb:     rgba(255,255,255,0.07);
+  --good:   #22C55E;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--white);
+  font-family: 'DM Sans', sans-serif;
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+
+/* ── GLOBAL ORBS ── */
+.orb { position: fixed; border-radius: 50%; filter: blur(100px); pointer-events: none; z-index: 0; }
+.orb-1 { width: 500px; height: 500px; background: radial-gradient(circle, rgba(232,64,122,.12) 0%, transparent 70%); top: -150px; right: -100px; animation: orbPulse 7s ease-in-out infinite alternate; }
+.orb-2 { width: 400px; height: 400px; background: radial-gradient(circle, rgba(123,94,255,.1) 0%, transparent 70%); bottom: 30%; left: -100px; animation: orbPulse 9s ease-in-out infinite alternate-reverse; }
+@keyframes orbPulse { from{transform:scale(1);opacity:.6;} to{transform:scale(1.2);opacity:1;} }
+
+/* ── UTILITY ── */
+.w { width: 100%; max-width: 680px; margin: 0 auto; padding: 0 20px; }
+.grad-text {
+  background: linear-gradient(90deg, #FF4D8D, #A855F7);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.divider { width: 40px; height: 2px; background: linear-gradient(90deg,#FF4D8D,#7B5EFF); border-radius: 2px; margin: 0 auto 32px; }
+
+section { position: relative; z-index: 1; }
+
+/* ── SCROLL REVEAL ── */
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity .65s ease, transform .65s ease; }
+.reveal.in { opacity: 1; transform: translateY(0); }
+
+/* ─────────────────────────────────────────
+   HERO SECTION
+───────────────────────────────────────── */
+.hero {
+  padding: 72px 0 56px;
+  text-align: center;
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(232,64,122,.1); border: 1px solid rgba(232,64,122,.25);
+  border-radius: 100px; padding: 7px 16px;
+  font-size: 12px; font-weight: 500; color: #FF7BAB; letter-spacing: .04em;
+  margin-bottom: 28px;
+}
+.hero-badge .dot { width:6px;height:6px;border-radius:50%;background:#FF4D8D;box-shadow:0 0 8px #FF4D8D;animation:blink 1.4s ease infinite; }
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
+
+.hero h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(28px, 6vw, 52px);
+  font-weight: 800; line-height: 1.1; letter-spacing: -.025em;
+  margin-bottom: 20px;
+}
+.hero-sub {
+  font-size: clamp(15px, 2.5vw, 18px);
+  color: rgba(255,255,255,.5); font-weight: 300; line-height: 1.7;
+  max-width: 520px; margin: 0 auto 0;
+}
+
+/* ─────────────────────────────────────────
+   VSL SECTION
+───────────────────────────────────────── */
+.vsl-section { padding: 0 0 60px; }
+.vsl-wrap { position: relative; }
+.vsl-glow {
+  border-radius: 22px; padding: 1.5px;
+  background: linear-gradient(135deg,rgba(232,64,122,.45),rgba(123,94,255,.45),rgba(232,64,122,.45));
+  background-size: 200% 200%;
+  animation: ringShift 4s ease infinite;
+  box-shadow: 0 0 60px rgba(232,64,122,.18), 0 0 120px rgba(123,94,255,.1);
+}
+@keyframes ringShift{0%,100%{background-position:0% 50%;}50%{background-position:100% 50%;}}
+.vsl-player {
+  background: #111116; border-radius: 21px;
+  aspect-ratio: 16/9; width: 100%;
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 16px;
+  position: relative; overflow: hidden;
+}
+/* ── COLE O VTURN AQUI ── substitua o .vsl-placeholder ── */
+.vsl-placeholder {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 14px;
+}
+.vsl-play {
+  width: 68px; height: 68px; border-radius: 50%;
+  background: linear-gradient(135deg,#E8407A,#A855F7);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; position: relative;
+  box-shadow: 0 8px 36px rgba(232,64,122,.45);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.vsl-play:hover { transform: scale(1.08); box-shadow: 0 12px 48px rgba(232,64,122,.6); }
+.vsl-play::before { content:'';position:absolute;inset:-8px;border-radius:50%;border:1.5px solid rgba(232,64,122,.3);animation:ping 2s ease-out infinite; }
+.vsl-play::after  { content:'';position:absolute;inset:-16px;border-radius:50%;border:1px solid rgba(232,64,122,.15);animation:ping 2s ease-out infinite .4s; }
+@keyframes ping{0%{transform:scale(1);opacity:1;}100%{transform:scale(1.6);opacity:0;}}
+.vsl-play-tri { width:0;height:0;border-style:solid;border-width:11px 0 11px 20px;border-color:transparent transparent transparent #fff;margin-left:5px; }
+.vsl-lbl { font-size:13px;color:rgba(255,255,255,.3);text-align:center;line-height:1.5; }
+.vsl-lbl strong { display:block;color:rgba(255,255,255,.55);font-weight:500;margin-bottom:2px; }
+.vsl-dur { display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);margin-top:2px; }
+.vsl-dur::before { content:'';width:6px;height:6px;border-radius:50%;background:#FF4D8D;box-shadow:0 0 6px #FF4D8D;animation:blink 1.4s ease infinite; }
+
+/* lock bar */
+.lock-bar {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  background: rgba(255,255,255,.03); border: 1px solid var(--gb);
+  border-radius: 12px; padding: 14px 20px; margin-top: 16px;
+  font-size: 13px; color: var(--muted); font-weight: 300;
+  transition: opacity .4s ease;
+}
+.lock-bar .lock-icon { font-size: 16px; }
+.lock-bar strong { color: rgba(255,255,255,.6); font-weight: 500; }
+
+/* ─────────────────────────────────────────
+   UNLOCKED CONTENT (hidden until VSL)
+───────────────────────────────────────── */
+.gated { opacity: 0; pointer-events: none; transform: translateY(20px); transition: opacity .7s ease, transform .7s ease; }
+.gated.unlocked { opacity: 1; pointer-events: auto; transform: translateY(0); }
+
+/* ─────────────────────────────────────────
+   PRODUCT INTRO
+───────────────────────────────────────── */
+.product-intro { padding: 60px 0; text-align: center; }
+.product-eyebrow { font-size:11px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:16px; }
+.product-intro h2 {
+  font-family:'Syne',sans-serif;
+  font-size:clamp(30px,7vw,56px);font-weight:800;line-height:1.05;letter-spacing:-.025em;
+  margin-bottom:16px;
+}
+.product-tag {
+  display:inline-block;background:rgba(232,64,122,.1);border:1px solid rgba(232,64,122,.2);
+  border-radius:100px;padding:6px 18px;font-size:13px;font-weight:500;color:#FF7BAB;
+  margin-bottom:24px;
+}
+.product-intro .product-sub { font-size:clamp(14px,2.5vw,17px);color:rgba(255,255,255,.45);max-width:480px;margin:0 auto;font-weight:300;line-height:1.7; }
+
+/* ─────────────────────────────────────────
+   WHAT IT IS
+───────────────────────────────────────── */
+.what-section { padding: 0 0 56px; }
+.glass-card {
+  background: var(--glass); border: 1px solid var(--gb);
+  border-radius: 20px; padding: 28px 24px; position: relative; overflow: hidden;
+}
+.glass-card::before { content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),transparent); }
+.what-section h3 { font-family:'Syne',sans-serif;font-size:22px;font-weight:700;margin-bottom:14px;letter-spacing:-.01em; }
+.what-section p { font-size:15px;color:rgba(255,255,255,.5);font-weight:300;line-height:1.75; }
+.what-section p strong { color:rgba(255,255,255,.82);font-weight:500; }
+
+/* ─────────────────────────────────────────
+   WHAT CHANGES
+───────────────────────────────────────── */
+.changes-section { padding: 0 0 56px; }
+.changes-section h3 { font-family:'Syne',sans-serif;font-size:22px;font-weight:700;margin-bottom:20px;letter-spacing:-.01em; }
+.change-list { display:flex;flex-direction:column;gap:10px; }
+.change-item {
+  display:flex;align-items:flex-start;gap:14px;padding:14px 16px;
+  background:var(--glass);border:1px solid var(--gb);border-radius:13px;
+  transition:border-color .25s;
+}
+.change-item:hover { border-color:rgba(232,64,122,.25); }
+.ci-icon { width:32px;height:32px;border-radius:9px;background:rgba(232,64,122,.1);border:1px solid rgba(232,64,122,.18);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;margin-top:1px; }
+.ci-text { font-size:14px;color:rgba(255,255,255,.65);font-weight:300;line-height:1.55; }
+.ci-text strong { color:rgba(255,255,255,.88);font-weight:500; }
+
+/* ─────────────────────────────────────────
+   HOW IT WORKS
+───────────────────────────────────────── */
+.how-section { padding: 0 0 56px; }
+.how-section h3 { font-family:'Syne',sans-serif;font-size:22px;font-weight:700;margin-bottom:20px;letter-spacing:-.01em; }
+.steps-list { display:flex;flex-direction:column;gap:0; }
+.how-step { display:flex;align-items:flex-start;gap:16px;padding:16px 0;position:relative; }
+.how-step:not(:last-child)::after { content:'';position:absolute;left:19px;top:44px;bottom:-4px;width:1px;background:linear-gradient(180deg,rgba(123,94,255,.3),transparent); }
+.step-num { width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,rgba(232,64,122,.15),rgba(123,94,255,.15));border:1px solid rgba(123,94,255,.25);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:#A78BFA; }
+.step-body { flex:1;padding-top:6px; }
+.step-title { font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--white);margin-bottom:3px; }
+.step-desc { font-size:13px;color:var(--muted);font-weight:300;line-height:1.55; }
+
+/* ─────────────────────────────────────────
+   WHAT YOU GET
+───────────────────────────────────────── */
+.get-section { padding: 0 0 56px; }
+.get-section h3 { font-family:'Syne',sans-serif;font-size:22px;font-weight:700;margin-bottom:20px;letter-spacing:-.01em; }
+.get-grid { display:grid;grid-template-columns:1fr 1fr;gap:10px; }
+@media(max-width:460px){ .get-grid{grid-template-columns:1fr;} }
+.get-card {
+  background:var(--glass);border:1px solid var(--gb);border-radius:14px;padding:18px 16px;
+  display:flex;flex-direction:column;gap:10px;position:relative;overflow:hidden;
+  transition:border-color .25s,transform .2s;
+}
+.get-card:hover { border-color:rgba(123,94,255,.25);transform:translateY(-2px); }
+.get-card::before { content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.07),transparent); }
+.get-card-icon { font-size:22px; }
+.get-card-title { font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--white); }
+.get-card-desc { font-size:12px;color:var(--muted);font-weight:300;line-height:1.5; }
+
+/* ─────────────────────────────────────────
+   SOCIAL PROOF
+───────────────────────────────────────── */
+.proof-section { padding: 0 0 56px; }
+.proof-section h3 { font-family:'Syne',sans-serif;font-size:22px;font-weight:700;margin-bottom:20px;letter-spacing:-.01em; }
+.proof-grid { display:flex;flex-direction:column;gap:10px; }
+.proof-card {
+  display:flex;align-items:flex-start;gap:14px;padding:16px;
+  background:var(--glass);border:1px solid var(--gb);border-radius:14px;position:relative;overflow:hidden;
+}
+.proof-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.06),transparent);}
+.proof-av { width:40px;height:40px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:#fff;position:relative; }
+.proof-av::after{content:'';position:absolute;inset:-2px;border-radius:50%;border:1.5px solid rgba(255,255,255,.1);}
+.proof-body { flex:1; }
+.proof-top { display:flex;align-items:center;gap:8px;margin-bottom:5px; }
+.proof-name { font-family:'Syne',sans-serif;font-size:13px;font-weight:700; }
+.proof-loc { font-size:10px;color:var(--muted);background:rgba(255,255,255,.04);border:1px solid var(--gb);border-radius:100px;padding:2px 8px; }
+.proof-quote { font-size:13px;color:rgba(255,255,255,.55);font-weight:300;line-height:1.55; }
+.proof-stars { font-size:10px;margin-top:5px;letter-spacing:1px; }
+
+/* ─────────────────────────────────────────
+   BELIEF BREAK
+───────────────────────────────────────── */
+.belief-section { padding: 0 0 56px; text-align: center; }
+.belief-card {
+  background: linear-gradient(135deg,rgba(123,94,255,.07),rgba(232,64,122,.05));
+  border: 1px solid rgba(123,94,255,.18); border-radius: 20px; padding: 36px 28px;
+  position: relative; overflow: hidden;
+}
+.belief-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(123,94,255,.3),transparent);}
+.belief-card p { font-family:'Syne',sans-serif;font-size:clamp(17px,4vw,24px);font-weight:700;line-height:1.35;letter-spacing:-.01em; }
+.belief-card p + p { margin-top:12px;font-size:clamp(15px,3vw,18px);font-weight:600;color:rgba(255,255,255,.6); }
+
+/* ─────────────────────────────────────────
+   CONTRAST
+───────────────────────────────────────── */
+.contrast-section { padding: 0 0 56px; }
+.contrast-grid { display:grid;grid-template-columns:1fr 1fr;gap:12px; }
+@media(max-width:480px){.contrast-grid{grid-template-columns:1fr;}}
+.contrast-card { border-radius:16px;padding:22px 20px;position:relative;overflow:hidden; }
+.contrast-card.bad  { background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.15); }
+.contrast-card.good { background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.15); }
+.contrast-label { font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px; }
+.contrast-card.bad  .contrast-label { color:#FCA5A5; }
+.contrast-card.good .contrast-label { color:#86EFAC; }
+.contrast-card h4 { font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:8px; }
+.contrast-card.bad  h4 { color:rgba(255,255,255,.7); }
+.contrast-card.good h4 { color:var(--white); }
+.contrast-card p { font-size:13px;font-weight:300;line-height:1.6; }
+.contrast-card.bad  p { color:rgba(239,68,68,.6); }
+.contrast-card.good p { color:rgba(34,197,94,.65); }
+
+/* ─────────────────────────────────────────
+   OFFER + CTA
+───────────────────────────────────────── */
+.offer-section { padding: 0 0 20px; }
+.offer-card {
+  background: linear-gradient(135deg,rgba(232,64,122,.08),rgba(123,94,255,.08));
+  border: 1px solid rgba(232,64,122,.22); border-radius: 24px; padding: 36px 28px;
+  text-align: center; position: relative; overflow: hidden;
+}
+.offer-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(232,64,122,.4),transparent);}
+.offer-title { font-family:'Syne',sans-serif;font-size:clamp(22px,5vw,34px);font-weight:800;line-height:1.15;letter-spacing:-.02em;margin-bottom:12px; }
+.offer-sub { font-size:14px;color:rgba(255,255,255,.45);font-weight:300;line-height:1.65;margin-bottom:28px; }
+.offer-bullets { display:flex;flex-direction:column;gap:8px;margin-bottom:28px;text-align:left; }
+.offer-bullet { display:flex;align-items:center;gap:10px;font-size:14px;color:rgba(255,255,255,.65);font-weight:300; }
+.ob-check { width:20px;height:20px;border-radius:6px;background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.25);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0; }
+
+/* CTA BUTTON */
+.cta-btn {
+  width:100%; padding:20px 28px;
+  background:linear-gradient(135deg,#E8407A 0%,#A855F7 100%);
+  border:none;border-radius:16px;color:#fff;
+  font-family:'Syne',sans-serif;font-size:18px;font-weight:800;letter-spacing:-.01em;
+  cursor:pointer;position:relative;overflow:hidden;
+  transition:transform .18s ease,box-shadow .18s ease;
+  box-shadow:0 10px 40px rgba(232,64,122,.4),0 2px 8px rgba(0,0,0,.5);
+}
+.cta-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.16) 0%,transparent 55%);}
+.cta-btn::after{content:'';position:absolute;top:-50%;left:-60%;width:50%;height:200%;background:linear-gradient(105deg,transparent,rgba(255,255,255,.16),transparent);transform:skewX(-20deg);animation:shimmer 3.5s ease infinite 1s;}
+@keyframes shimmer{0%{left:-60%;opacity:0;}5%{opacity:1;}50%{left:120%;opacity:0;}100%{left:120%;opacity:0;}}
+.cta-btn:hover{transform:translateY(-3px) scale(1.01);box-shadow:0 16px 50px rgba(232,64,122,.5);}
+.cta-btn:active{transform:translateY(0) scale(.99);}
+.cta-sub-text { font-size:12px;color:var(--muted);margin-top:12px; }
+
+/* ─────────────────────────────────────────
+   URGENCY + GUARANTEE
+───────────────────────────────────────── */
+.urgency-section { padding: 36px 0; text-align: center; }
+.urgency-card {
+  background:rgba(245,158,11,.05);border:1px solid rgba(245,158,11,.15);
+  border-radius:14px;padding:18px 20px;
+}
+.urgency-card p { font-size:14px;color:rgba(245,158,11,.7);font-weight:300;line-height:1.6; }
+.urgency-card p strong { color:#FCD34D;font-weight:600; }
+
+.guarantee-section { padding: 0 0 48px; text-align: center; }
+.guarantee-inner { display:flex;align-items:center;justify-content:center;gap:16px;padding:22px 24px;background:var(--glass);border:1px solid var(--gb);border-radius:16px; }
+.guarantee-icon { font-size:32px;flex-shrink:0; }
+.guarantee-text { text-align:left; }
+.guarantee-text h4 { font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:4px; }
+.guarantee-text p { font-size:13px;color:var(--muted);font-weight:300;line-height:1.5; }
+
+/* ─────────────────────────────────────────
+   FOOTER
+───────────────────────────────────────── */
+footer {
+  border-top:1px solid var(--gb);padding:24px 20px;text-align:center;
+  font-size:12px;color:var(--muted);font-weight:300;
+}
+
+/* ─────────────────────────────────────────
+   NOTIFICATION
+───────────────────────────────────────── */
+.notif {
+  position:fixed;bottom:22px;left:20px;max-width:250px;z-index:200;
+  background:rgba(10,10,14,.97);border:1px solid rgba(255,255,255,.08);
+  border-radius:14px;padding:12px 14px;
+  display:flex;align-items:flex-start;gap:10px;
+  box-shadow:0 8px 32px rgba(0,0,0,.6);backdrop-filter:blur(20px);
+  transform:translateX(-300px);opacity:0;
+  transition:transform .45s cubic-bezier(.34,1.36,.64,1),opacity .35s ease;
+  pointer-events:none;
+}
+.notif.show{transform:translateX(0);opacity:1;}
+.notif.hide{transform:translateX(-30px);opacity:0;transition:transform .3s ease,opacity .25s ease;}
+.ni{font-size:18px;flex-shrink:0;margin-top:1px;}
+.nt{font-size:11px;color:rgba(255,255,255,.55);line-height:1.45;font-weight:300;}
+.nt strong{color:rgba(255,255,255,.85);font-weight:500;}
+.ntm{font-size:9px;color:var(--muted);margin-top:3px;}
+.nd{position:absolute;top:12px;right:12px;width:5px;height:5px;border-radius:50%;background:#FF4D8D;box-shadow:0 0 5px #FF4D8D;animation:blink 1.4s ease infinite;}
+
+/* ─────────────────────────────────────────
+   STICKY CTA BAR (after unlock)
+───────────────────────────────────────── */
+.sticky-bar {
+  position:fixed;bottom:0;left:0;right:0;z-index:100;
+  background:rgba(10,10,12,.95);border-top:1px solid rgba(255,255,255,.07);
+  backdrop-filter:blur(20px);padding:14px 20px;
+  display:flex;align-items:center;justify-content:center;gap:14px;
+  transform:translateY(100%);transition:transform .5s cubic-bezier(.16,1,.3,1);
+}
+.sticky-bar.visible{transform:translateY(0);}
+.sticky-bar .sb-text { font-size:13px;color:rgba(255,255,255,.5);font-weight:300;white-space:nowrap; }
+.sticky-bar .sb-text strong { color:rgba(255,255,255,.8);font-weight:500; }
+.sb-btn {
+  padding:12px 24px;background:linear-gradient(135deg,#E8407A,#A855F7);
+  border:none;border-radius:12px;color:#fff;
+  font-family:'Syne',sans-serif;font-size:14px;font-weight:700;
+  cursor:pointer;white-space:nowrap;position:relative;overflow:hidden;
+  box-shadow:0 4px 20px rgba(232,64,122,.35);
+  transition:transform .18s,box-shadow .18s;
+}
+.sb-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.12),transparent);}
+.sb-btn:hover{transform:translateY(-1px);box-shadow:0 8px 28px rgba(232,64,122,.45);}
+</style>
+</head>
+<body>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+
+<!-- NOTIFICATION -->
+<div class="notif" id="notif">
+  <span class="ni" id="ni"></span>
+  <div><p class="nt" id="nt"></p><p class="ntm" id="ntm"></p></div>
+  <span class="nd"></span>
+</div>
+
+<!-- STICKY BAR -->
+<div class="sticky-bar" id="stickyBar">
+  <p class="sb-text"><strong>Conversa Alpha</strong> · acesso imediato</p>
+  <button class="sb-btn" onclick="goCheckout()">Desbloquear agora →</button>
+</div>
+
+<!-- ══════════════════════════════════════
+     HERO
+══════════════════════════════════════ -->
+<section class="hero">
+  <div class="w">
+    <div class="reveal">
+      <div class="hero-badge"><span class="dot"></span>Resultado do seu teste</div>
+      <h1>Agora faz sentido por que<br>suas conversas <span class="grad-text">morrem do nada.</span></h1>
+      <p class="hero-sub">Você viu isso no teste… e isso acontece toda vez que você responde sem saber o que está fazendo.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     VSL
+══════════════════════════════════════ -->
+<section class="vsl-section">
+  <div class="w">
+    <div class="reveal">
+      <div class="vsl-wrap">
+        <div class="vsl-glow">
+          <div class="vsl-player" id="vslPlayer">
+
+            <!-- ══════════════════════════════════
+                 👇 COLE O vTURB AQUI
+                 Remova o .vsl-placeholder após inserir.
+                 Mantenha .vsl-player e .vsl-glow.
+                 Configure o callback: window.onVideoEnd()
+            ══════════════════════════════════ -->
+            <div class="vsl-placeholder" id="vslPlaceholder">
+              <div class="vsl-play" onclick="simulateVideoEnd()">
+                <div class="vsl-play-tri"></div>
+              </div>
+              <div class="vsl-lbl">
+                <strong>Cole o vTURB aqui</strong>
+                player de vídeo incorporado
+              </div>
+              <div class="vsl-dur">Vídeo de apresentação · ~1 min</div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- LOCK BAR -->
+        <div class="lock-bar" id="lockBar">
+          <span class="lock-icon">🔒</span>
+          <span>Assista o vídeo até o final para <strong>desbloquear o acesso</strong></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     GATED CONTENT
+══════════════════════════════════════ -->
+<div class="gated" id="gatedContent">
+
+  <!-- PRODUCT INTRO -->
+  <section class="product-intro">
+    <div class="w">
+      <div class="reveal">
+        <div class="divider"></div>
+        <p class="product-eyebrow">O método</p>
+        <span class="product-tag">Novo · Acesso Imediato</span>
+        <h2>Conversa Alpha:<br><span class="grad-text">Anti-Vácuo</span></h2>
+        <p class="product-sub">o método pra parar de travar, falar certo na hora certa e nunca mais matar uma conversa</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHAT IT IS -->
+  <section class="what-section">
+    <div class="w">
+      <div class="reveal glass-card">
+        <h3>O que é isso?</h3>
+        <p>Um <strong>sistema prático que te treina em situações reais de conversa</strong> até você saber exatamente o que responder — sem pensar. Sem roteiro decorado. Sem fingir ser outra pessoa.</p>
+        <br>
+        <p>Você não aprende teoria. Você passa por situações, escolhe respostas, recebe feedback imediato e <strong>vai calibrando o instinto</strong> até acertar no timing, no tom e na intenção.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHAT CHANGES -->
+  <section class="changes-section">
+    <div class="w">
+      <div class="reveal">
+        <h3>O que muda pra você</h3>
+        <div class="change-list">
+          <div class="change-item">
+            <div class="ci-icon">🧠</div>
+            <p class="ci-text"><strong>Você para de travar</strong> no "o que eu respondo agora" — a resposta começa a vir natural</p>
+          </div>
+          <div class="change-item">
+            <div class="ci-icon">💬</div>
+            <p class="ci-text"><strong>Suas conversas começam a fluir</strong> — sem forçar papo, sem parecer desesperado</p>
+          </div>
+          <div class="change-item">
+            <div class="ci-icon">⚡</div>
+            <p class="ci-text"><strong>Você ganha confiança real</strong> — não a de quem decorou linha, mas de quem entende o jogo</p>
+          </div>
+          <div class="change-item">
+            <div class="ci-icon">🎯</div>
+            <p class="ci-text"><strong>Você entende o que funciona e o que não funciona</strong> — e para de cometer os mesmos erros sem perceber</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="how-section">
+    <div class="w">
+      <div class="reveal">
+        <h3>Como funciona</h3>
+        <div class="steps-list">
+          <div class="how-step">
+            <div class="step-num">1</div>
+            <div class="step-body"><p class="step-title">Você entra no simulador</p><p class="step-desc">Acesso imediato direto no celular ou computador</p></div>
+          </div>
+          <div class="how-step">
+            <div class="step-num">2</div>
+            <div class="step-body"><p class="step-title">Passa por situações reais</p><p class="step-desc">Conversas que acontecem de verdade — nada de cenário inventado</p></div>
+          </div>
+          <div class="how-step">
+            <div class="step-num">3</div>
+            <div class="step-body"><p class="step-title">Escolhe respostas</p><p class="step-desc">Você toma a decisão como se fosse na vida real</p></div>
+          </div>
+          <div class="how-step">
+            <div class="step-num">4</div>
+            <div class="step-body"><p class="step-title">Recebe feedback imediato</p><p class="step-desc">Entende por que funcionou ou não — e o que usar no lugar</p></div>
+          </div>
+          <div class="how-step">
+            <div class="step-num">5</div>
+            <div class="step-body"><p class="step-title">Aprende padrões que funcionam</p><p class="step-desc">Seu instinto de resposta vai calibrando a cada sessão</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHAT YOU GET -->
+  <section class="get-section">
+    <div class="w">
+      <div class="reveal">
+        <h3>O que você recebe</h3>
+        <div class="get-grid">
+          <div class="get-card">
+            <span class="get-card-icon">🎮</span>
+            <p class="get-card-title">Simulador completo</p>
+            <p class="get-card-desc">Situações reais com feedback em cada escolha</p>
+          </div>
+          <div class="get-card">
+            <span class="get-card-icon">💬</span>
+            <p class="get-card-title">Biblioteca de mensagens</p>
+            <p class="get-card-desc">Frases que mantêm o interesse e abrem portas</p>
+          </div>
+          <div class="get-card">
+            <span class="get-card-icon">🧠</span>
+            <p class="get-card-title">Explicação das respostas</p>
+            <p class="get-card-desc">Você entende o porquê — não só decora</p>
+          </div>
+          <div class="get-card">
+            <span class="get-card-icon">🔓</span>
+            <p class="get-card-title">Técnicas desbloqueáveis</p>
+            <p class="get-card-desc">Conteúdo extra conforme você avança</p>
+          </div>
+          <div class="get-card" style="grid-column:1/-1;">
+            <span class="get-card-icon">📱</span>
+            <p class="get-card-title">Acesso imediato</p>
+            <p class="get-card-desc">Funciona no celular. Você começa em minutos.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SOCIAL PROOF -->
+  <section class="proof-section">
+    <div class="w">
+      <div class="reveal">
+        <h3>O que estão dizendo</h3>
+        <div class="proof-grid">
+          <div class="proof-card">
+            <div class="proof-av" style="background:linear-gradient(135deg,#FF7BAB,#E8407A);">L</div>
+            <div class="proof-body">
+              <div class="proof-top"><span class="proof-name">Lucas, 22</span><span class="proof-loc">SP</span></div>
+              <p class="proof-quote">"parei de tomar vácuo direto. Mudou minha forma de escrever completamente."</p>
+              <div class="proof-stars">⭐⭐⭐⭐⭐</div>
+            </div>
+          </div>
+          <div class="proof-card">
+            <div class="proof-av" style="background:linear-gradient(135deg,#A78BFA,#7B5EFF);">M</div>
+            <div class="proof-body">
+              <div class="proof-top"><span class="proof-name">Mateus, 26</span><span class="proof-loc">PR</span></div>
+              <p class="proof-quote">"minhas conversas mudaram muito. Agora elas fluem de um jeito que nunca acontecia antes."</p>
+              <div class="proof-stars">⭐⭐⭐⭐⭐</div>
+            </div>
+          </div>
+          <div class="proof-card">
+            <div class="proof-av" style="background:linear-gradient(135deg,#34D399,#059669);">G</div>
+            <div class="proof-body">
+              <div class="proof-top"><span class="proof-name">Gabriel, 24</span><span class="proof-loc">RJ</span></div>
+              <p class="proof-quote">"comecei a ter resposta muito mais fácil. Parece que destravou alguma coisa."</p>
+              <div class="proof-stars">⭐⭐⭐⭐⭐</div>
+            </div>
+          </div>
+          <div class="proof-card">
+            <div class="proof-av" style="background:linear-gradient(135deg,#FBB040,#F97316);">R</div>
+            <div class="proof-body">
+              <div class="proof-top"><span class="proof-name">Rafael, 21</span><span class="proof-loc">MG</span></div>
+              <p class="proof-quote">"agora sei o que falar sem pensar. Nada de roteiro — é instinto mesmo."</p>
+              <div class="proof-stars">⭐⭐⭐⭐⭐</div>
+            </div>
+          </div>
+          <div class="proof-card">
+            <div class="proof-av" style="background:linear-gradient(135deg,#60A5FA,#3B82F6);">T</div>
+            <div class="proof-body">
+              <div class="proof-top"><span class="proof-name">Thiago, 23</span><span class="proof-loc">BA</span></div>
+              <p class="proof-quote">"marquei encontro na mesma semana que terminei. Antes ficava só no digital."</p>
+              <div class="proof-stars">⭐⭐⭐⭐⭐</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BELIEF BREAK -->
+  <section class="belief-section">
+    <div class="w">
+      <div class="reveal">
+        <div class="divider"></div>
+        <div class="belief-card">
+          <p>"Você não precisa ser engraçado, bonito ou diferente."</p>
+          <p>"Você só precisa <span class="grad-text">parar de errar sem perceber.</span>"</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTRAST -->
+  <section class="contrast-section">
+    <div class="w">
+      <div class="reveal">
+        <div class="contrast-grid">
+          <div class="contrast-card bad">
+            <p class="contrast-label">❌ Sem o método</p>
+            <h4>Continua no improviso</h4>
+            <p>Tentando adivinhar o que responder, perdendo timing, quebrando clima sem entender por quê</p>
+          </div>
+          <div class="contrast-card good">
+            <p class="contrast-label">✓ Com o método</p>
+            <h4>Aprende o padrão</h4>
+            <p>Você sabe o que funciona, fala na hora certa e mantém o interesse vivo sem precisar forçar nada</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- OFFER + CTA -->
+  <section class="offer-section">
+    <div class="w">
+      <div class="reveal">
+        <div class="offer-card">
+          <p class="offer-title">Conversa Alpha:<br><span class="grad-text">Anti-Vácuo</span></p>
+          <p class="offer-sub">Acesso imediato · Conteúdo completo · Sem enrolação</p>
+          <div class="offer-bullets">
+            <div class="offer-bullet"><span class="ob-check">✓</span>Simulador completo com feedback em tempo real</div>
+            <div class="offer-bullet"><span class="ob-check">✓</span>Biblioteca de mensagens que funcionam</div>
+            <div class="offer-bullet"><span class="ob-check">✓</span>Explicação de cada resposta e por que funciona</div>
+            <div class="offer-bullet"><span class="ob-check">✓</span>Técnicas desbloqueáveis conforme você avança</div>
+            <div class="offer-bullet"><span class="ob-check">✓</span>Acesso vitalício no celular ou computador</div>
+          </div>
+          <button class="cta-btn" onclick="goCheckout()">Desbloquear Conversa Alpha →</button>
+          <p class="cta-sub-text">🔒 Compra segura · Acesso imediato após confirmação</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- URGENCY -->
+  <section class="urgency-section">
+    <div class="w">
+      <div class="reveal">
+        <div class="urgency-card">
+          <p>⏳ <strong>Quanto mais você demora…</strong> mais continua cometendo os mesmos erros e perdendo conversas que poderiam ter ido longe.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GUARANTEE -->
+  <section class="guarantee-section">
+    <div class="w">
+      <div class="reveal">
+        <div class="guarantee-inner">
+          <span class="guarantee-icon">🛡️</span>
+          <div class="guarantee-text">
+            <h4>Teste e veja por você mesmo</h4>
+            <p>Se você entrar, explorar o conteúdo e sentir que não faz sentido pra você — a gente resolve. Sem complicação.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /gated -->
+
+<footer>
+  <p>© 2025 Conversa Alpha · Todos os direitos reservados</p>
+</footer>
+
+<script>
+  /* ── SCROLL REVEAL ── */
+  const reveals = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver(entries=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  },{ threshold:.12 });
+  reveals.forEach(el=>io.observe(el));
+
+  /* ── VIDEO END / UNLOCK ── */
+  window.onVideoEnd = function() {
+    // fade out lock bar
+    const lockBar = document.getElementById('lockBar');
+    lockBar.style.opacity='0';
+    lockBar.style.transition='opacity .5s ease';
+    setTimeout(()=>lockBar.style.display='none',500);
+
+    // hide placeholder
+    const ph = document.getElementById('vslPlaceholder');
+    if(ph){ ph.style.opacity='0'; ph.style.transition='opacity .4s'; setTimeout(()=>ph.remove(),400); }
+
+    // unlock gated content
+    setTimeout(()=>{
+      document.getElementById('gatedContent').classList.add('unlocked');
+      document.getElementById('stickyBar').classList.add('visible');
+      // trigger reveals inside gated
+      document.querySelectorAll('#gatedContent .reveal').forEach(el=>{
+        io.observe(el);
+      });
+    }, 600);
+  };
+
+  /* ── DEV SIMULATE ── */
+  function simulateVideoEnd(){ window.onVideoEnd(); }
+
+  /* ── NOTIFICATIONS ── */
+  const notifs=[
+    {i:'🔥',t:'<strong>Lucas de SP</strong> acabou de desbloquear o acesso',tm:'agora'},
+    {i:'💬',t:'<strong>46 pessoas</strong> compraram essa semana',tm:'hoje'},
+    {i:'⚡',t:'<strong>Mateus</strong> está no módulo 3 agora',tm:'há 5 min'},
+    {i:'🏆',t:'<strong>+840 usuários</strong> ativos no simulador',tm:'esta semana'},
+    {i:'💬',t:'<strong>Gabriel do RJ</strong> marcou encontro depois do método',tm:'há 2 dias'},
+  ];
+  let ni=0;
+  const nel=document.getElementById('notif');
+  function showNotif(){
+    const n=notifs[ni%notifs.length];ni++;
+    document.getElementById('ni').textContent=n.i;
+    document.getElementById('nt').innerHTML=n.t;
+    document.getElementById('ntm').textContent=n.tm;
+    nel.classList.remove('hide');nel.classList.add('show');
+    setTimeout(()=>{nel.classList.remove('show');nel.classList.add('hide');},3800);
+    setTimeout(showNotif,7000+Math.random()*5000);
+  }
+  setTimeout(showNotif,4000);
+
+  /* ── CHECKOUT ── */
+  function goCheckout(){
+    // window.location.href = 'https://seu-checkout.com';
+    alert('Redirecionar para o checkout aqui.');
+  }
+</script>
+</body>
+</html>
