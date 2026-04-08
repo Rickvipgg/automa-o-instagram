@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oferta Especial — Macho Alpha na Prática</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:     #0A0A0C;
+  --bg2:    #0D0D10;
+  --accent: #E8407A;
+  --purple: #7B5EFF;
+  --white:  #FFFFFF;
+  --muted:  #6B6B7A;
+  --muted2: #2E2E38;
+  --glass:  rgba(255,255,255,0.04);
+  --gb:     rgba(255,255,255,0.07);
+  --gold:   #F59E0B;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--white);
+  font-family: 'DM Sans', sans-serif;
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+
+/* ── ORBS ── */
+.orb { position: fixed; border-radius: 50%; filter: blur(100px); pointer-events: none; z-index: 0; }
+.orb-1 { width: 500px; height: 500px; background: radial-gradient(circle, rgba(232,64,122,.13) 0%, transparent 70%); top: -160px; right: -120px; animation: orbPulse 7s ease-in-out infinite alternate; }
+.orb-2 { width: 420px; height: 420px; background: radial-gradient(circle, rgba(123,94,255,.1) 0%, transparent 70%); bottom: 20%; left: -120px; animation: orbPulse 9s ease-in-out infinite alternate-reverse; }
+.orb-3 { width: 300px; height: 300px; background: radial-gradient(circle, rgba(245,158,11,.06) 0%, transparent 70%); top: 40%; right: -60px; animation: orbPulse 11s ease-in-out infinite alternate; }
+@keyframes orbPulse { from{transform:scale(1);opacity:.6;} to{transform:scale(1.2);opacity:1;} }
+
+/* ── UTILITY ── */
+.w { width: 100%; max-width: 680px; margin: 0 auto; padding: 0 20px; }
+.grad-text { background: linear-gradient(90deg,#FF4D8D,#A855F7); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.gold-text  { background: linear-gradient(90deg,#F59E0B,#FCD34D); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+section { position: relative; z-index: 1; }
+
+/* REVEAL */
+.reveal { opacity:0; transform:translateY(22px); transition:opacity .65s ease,transform .65s ease; }
+.reveal.in { opacity:1; transform:translateY(0); }
+
+/* ─────────────────────────────────────────
+   TOP BANNER
+───────────────────────────────────────── */
+.top-banner {
+  background: linear-gradient(135deg,rgba(232,64,122,.12),rgba(123,94,255,.1));
+  border-bottom: 1px solid rgba(232,64,122,.18);
+  padding: 12px 20px; text-align: center;
+  position: relative; z-index: 10;
+}
+.top-banner p { font-size:12px; color:rgba(255,255,255,.55); font-weight:300; }
+.top-banner p strong { color:#FF7BAB; font-weight:600; }
+.top-banner .pulse-dot { display:inline-block; width:6px;height:6px;border-radius:50%;background:#FF4D8D;box-shadow:0 0 8px #FF4D8D;margin-right:6px;animation:blink 1.4s ease infinite;vertical-align:middle; }
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
+
+/* ─────────────────────────────────────────
+   CONFIRMATION BAR
+───────────────────────────────────────── */
+.confirm-bar {
+  padding: 20px;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  background: rgba(34,197,94,.06); border-bottom: 1px solid rgba(34,197,94,.12);
+  position: relative; z-index: 1;
+}
+.confirm-bar .check-icon { width:28px;height:28px;border-radius:50%;background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.25);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0; }
+.confirm-bar p { font-size:13px;color:rgba(34,197,94,.75);font-weight:300; }
+.confirm-bar p strong { color:#86EFAC;font-weight:600; }
+
+/* ─────────────────────────────────────────
+   HERO
+───────────────────────────────────────── */
+.hero { padding: 60px 0 44px; text-align: center; }
+
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(245,158,11,.1); border: 1px solid rgba(245,158,11,.22);
+  border-radius: 100px; padding: 7px 16px;
+  font-size: 12px; font-weight: 500; color: #FCD34D; letter-spacing: .04em;
+  margin-bottom: 28px;
+}
+.hero-eyebrow .dot { width:6px;height:6px;border-radius:50%;background:#F59E0B;box-shadow:0 0 8px #F59E0B;animation:blink 1.4s ease infinite; }
+
+.hero h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(26px,6vw,50px); font-weight:800; line-height:1.1; letter-spacing:-.025em;
+  margin-bottom: 18px;
+}
+.hero h1 .line2 { display:block; font-size:.78em; font-weight:700; color:rgba(255,255,255,.6); margin-top:6px; }
+
+.hero-sub {
+  font-size: clamp(15px,2.5vw,17px); color:rgba(255,255,255,.45);
+  font-weight:300; line-height:1.75; max-width:500px; margin:0 auto 28px;
+}
+
+/* urgency pill */
+.urgency-pill {
+  display: inline-flex; align-items:center; gap:8px;
+  background: rgba(239,68,68,.08); border:1px solid rgba(239,68,68,.2);
+  border-radius:100px; padding:7px 16px;
+  font-size:12px; color:#FCA5A5; font-weight:400;
+}
+.urgency-pill strong { color:#F87171; font-weight:600; }
+
+/* ─────────────────────────────────────────
+   BRIDGE SECTION
+───────────────────────────────────────── */
+.bridge-section { padding: 0 0 48px; }
+.bridge-card {
+  background: var(--glass); border:1px solid var(--gb);
+  border-radius:20px; padding:28px 24px; position:relative; overflow:hidden;
+}
+.bridge-card::before { content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.07),transparent); }
+.bridge-card p { font-size:clamp(15px,3vw,18px); color:rgba(255,255,255,.55); font-weight:300; line-height:1.75; }
+.bridge-card p + p { margin-top:14px; }
+.bridge-card p strong { color:var(--white); font-weight:600; }
+.bridge-card p em { font-style:normal; color:#FF7BAB; }
+
+/* ─────────────────────────────────────────
+   PRODUCT REVEAL
+───────────────────────────────────────── */
+.product-section { padding: 0 0 20px; text-align:center; }
+.product-tag {
+  display:inline-block; background:rgba(245,158,11,.1); border:1px solid rgba(245,158,11,.22);
+  border-radius:100px; padding:5px 16px; font-size:12px; color:#FCD34D; font-weight:500;
+  margin-bottom:20px;
+}
+.product-section h2 {
+  font-family:'Syne',sans-serif;
+  font-size:clamp(26px,6vw,44px); font-weight:800; line-height:1.1; letter-spacing:-.025em;
+  margin-bottom:12px;
+}
+.product-section .pack-label {
+  display:inline-block; background:rgba(123,94,255,.1); border:1px solid rgba(123,94,255,.2);
+  border-radius:8px; padding:4px 12px; font-size:12px; font-weight:600; color:#A78BFA;
+  margin-bottom:18px; letter-spacing:.04em;
+}
+.product-section .product-desc { font-size:clamp(14px,2.5vw,16px); color:rgba(255,255,255,.45); font-weight:300; line-height:1.7; max-width:480px; margin:0 auto; }
+
+/* ─────────────────────────────────────────
+   MODULES LIST
+───────────────────────────────────────── */
+.modules-section { padding: 40px 0 48px; }
+
+.modules-block { margin-bottom:28px; }
+.modules-block-title {
+  font-size:11px; color:var(--muted); letter-spacing:.08em; text-transform:uppercase;
+  margin-bottom:12px; display:flex; align-items:center; gap:8px;
+}
+.modules-block-title::before { content:''; width:18px;height:1px;background:var(--muted2); }
+.modules-block-title.advanced { color:#A78BFA; }
+.modules-block-title.advanced::before { background:rgba(123,94,255,.3); }
+
+.module-list { display:flex; flex-direction:column; gap:8px; }
+.module-item {
+  display:flex; align-items:center; gap:13px; padding:13px 16px;
+  background:var(--glass); border:1px solid var(--gb);
+  border-radius:13px; transition:border-color .2s,transform .2s;
+}
+.module-item:hover { border-color:rgba(123,94,255,.22); transform:translateX(3px); }
+.module-item.hot { background:rgba(123,94,255,.05); border-color:rgba(123,94,255,.15); }
+.module-item.hot:hover { border-color:rgba(123,94,255,.3); }
+.mi-icon { width:32px;height:32px;border-radius:9px;background:rgba(255,255,255,.04);border:1px solid var(--gb);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0; }
+.module-item.hot .mi-icon { background:rgba(123,94,255,.1);border-color:rgba(123,94,255,.2); }
+.mi-text { flex:1; }
+.mi-title { font-size:13px; color:rgba(255,255,255,.72); font-weight:400; line-height:1.4; }
+.mi-count { font-size:10px; color:var(--muted); margin-top:2px; }
+.mi-badge {
+  font-size:9px; font-weight:700; padding:2px 8px; border-radius:100px; white-space:nowrap;
+  background:rgba(123,94,255,.12); border:1px solid rgba(123,94,255,.2); color:#A78BFA;
+}
+
+/* ─────────────────────────────────────────
+   PROMISE BLOCK
+───────────────────────────────────────── */
+.promise-section { padding: 0 0 48px; }
+.promise-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+@media(max-width:440px){.promise-grid{grid-template-columns:1fr;}}
+.promise-card {
+  background:var(--glass); border:1px solid var(--gb);
+  border-radius:14px; padding:18px 16px;
+  display:flex; flex-direction:column; gap:8px;
+  transition:border-color .2s,transform .2s;
+}
+.promise-card:hover { border-color:rgba(232,64,122,.2); transform:translateY(-2px); }
+.pc-icon { font-size:22px; }
+.pc-title { font-family:'Syne',sans-serif; font-size:14px; font-weight:700; color:var(--white); }
+.pc-desc { font-size:12px; color:var(--muted); font-weight:300; line-height:1.5; }
+
+/* ─────────────────────────────────────────
+   BELIEF BREAK
+───────────────────────────────────────── */
+.belief-section { padding: 0 0 48px; }
+.belief-card {
+  background:linear-gradient(135deg,rgba(123,94,255,.08),rgba(232,64,122,.06));
+  border:1px solid rgba(123,94,255,.18); border-radius:20px; padding:32px 26px;
+  text-align:center; position:relative; overflow:hidden;
+}
+.belief-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(123,94,255,.3),transparent);}
+.belief-card p { font-family:'Syne',sans-serif; font-size:clamp(16px,4vw,22px); font-weight:700; line-height:1.35; letter-spacing:-.01em; }
+.belief-card p+p { margin-top:10px; font-size:clamp(14px,3vw,18px); font-weight:600; color:rgba(255,255,255,.55); }
+
+/* ─────────────────────────────────────────
+   CONTRAST
+───────────────────────────────────────── */
+.contrast-section { padding: 0 0 48px; }
+.contrast-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+@media(max-width:460px){.contrast-grid{grid-template-columns:1fr;}}
+.cc { border-radius:16px; padding:22px 18px; position:relative; overflow:hidden; }
+.cc.bad  { background:rgba(239,68,68,.05); border:1px solid rgba(239,68,68,.14); }
+.cc.good { background:rgba(34,197,94,.05); border:1px solid rgba(34,197,94,.14); }
+.cc-label { font-size:10px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; margin-bottom:10px; }
+.cc.bad  .cc-label { color:#FCA5A5; }
+.cc.good .cc-label { color:#86EFAC; }
+.cc h4 { font-family:'Syne',sans-serif; font-size:14px; font-weight:700; margin-bottom:7px; }
+.cc.bad  h4 { color:rgba(255,255,255,.65); }
+.cc.good h4 { color:var(--white); }
+.cc p { font-size:12px; font-weight:300; line-height:1.6; }
+.cc.bad  p { color:rgba(239,68,68,.55); }
+.cc.good p { color:rgba(34,197,94,.6); }
+
+/* ─────────────────────────────────────────
+   OFFER CARD
+───────────────────────────────────────── */
+.offer-section { padding: 0 0 16px; }
+.offer-card {
+  background:linear-gradient(160deg,rgba(245,158,11,.07),rgba(232,64,122,.07),rgba(123,94,255,.07));
+  border:1px solid rgba(245,158,11,.2); border-radius:24px; padding:36px 26px;
+  text-align:center; position:relative; overflow:hidden;
+}
+.offer-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(245,158,11,.4),transparent);}
+
+.offer-exclusive {
+  display:inline-flex; align-items:center; gap:8px;
+  background:rgba(245,158,11,.1); border:1px solid rgba(245,158,11,.22);
+  border-radius:100px; padding:6px 16px;
+  font-size:12px; color:#FCD34D; font-weight:500; margin-bottom:20px;
+}
+.offer-exclusive .dot{width:5px;height:5px;border-radius:50%;background:#F59E0B;box-shadow:0 0 6px #F59E0B;animation:blink 1.4s ease infinite;}
+
+.offer-card h3 { font-family:'Syne',sans-serif; font-size:clamp(20px,5vw,30px); font-weight:800; line-height:1.15; letter-spacing:-.02em; margin-bottom:10px; }
+.offer-card .offer-desc { font-size:14px; color:rgba(255,255,255,.45); font-weight:300; line-height:1.65; margin-bottom:28px; max-width:440px; margin-left:auto; margin-right:auto; }
+
+/* price block */
+.price-block { display:flex; align-items:center; justify-content:center; gap:16px; margin-bottom:28px; flex-wrap:wrap; }
+.price-original {
+  font-size:20px; color:var(--muted); font-weight:400;
+  text-decoration:line-through; text-decoration-color:rgba(239,68,68,.5);
+}
+.price-arrow { font-size:16px; color:var(--muted); }
+.price-current {
+  display:flex; flex-direction:column; align-items:flex-start; gap:2px;
+}
+.price-tag { font-family:'Syne',sans-serif; font-size:clamp(36px,8vw,52px); font-weight:800; line-height:1; }
+.price-once { font-size:11px; color:var(--muted); letter-spacing:.04em; margin-top:2px; }
+.price-save {
+  display:inline-block; background:rgba(34,197,94,.12); border:1px solid rgba(34,197,94,.22);
+  border-radius:100px; padding:4px 12px; font-size:11px; color:#86EFAC; font-weight:600;
+}
+
+/* what's included mini list */
+.offer-includes { display:flex; flex-direction:column; gap:8px; margin-bottom:28px; text-align:left; }
+.oi-item { display:flex; align-items:center; gap:10px; font-size:13px; color:rgba(255,255,255,.6); font-weight:300; }
+.oi-check { width:20px;height:20px;border-radius:6px;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.2);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0; }
+
+/* CTA BUTTONS */
+.cta-primary {
+  width:100%; padding:20px 28px;
+  background:linear-gradient(135deg,#F59E0B 0%,#E8407A 60%,#A855F7 100%);
+  border:none; border-radius:16px; color:#fff;
+  font-family:'Syne',sans-serif; font-size:18px; font-weight:800; letter-spacing:-.01em;
+  cursor:pointer; position:relative; overflow:hidden;
+  transition:transform .18s ease,box-shadow .18s ease;
+  box-shadow:0 10px 40px rgba(245,158,11,.25),0 4px 20px rgba(232,64,122,.3);
+  margin-bottom:14px;
+}
+.cta-primary::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.16) 0%,transparent 55%);}
+.cta-primary::after{content:'';position:absolute;top:-50%;left:-60%;width:50%;height:200%;background:linear-gradient(105deg,transparent,rgba(255,255,255,.18),transparent);transform:skewX(-20deg);animation:shimmer 3s ease infinite 1s;}
+@keyframes shimmer{0%{left:-60%;opacity:0;}5%{opacity:1;}50%{left:120%;opacity:0;}100%{left:120%;opacity:0;}}
+.cta-primary:hover{transform:translateY(-3px) scale(1.01);box-shadow:0 16px 50px rgba(245,158,11,.3),0 8px 28px rgba(232,64,122,.4);}
+.cta-primary:active{transform:translateY(0) scale(.99);}
+
+.cta-guarantee { font-size:11px; color:var(--muted); margin-bottom:20px; display:flex; align-items:center; justify-content:center; gap:6px; }
+
+.cta-skip {
+  width:100%; padding:14px 20px;
+  background:transparent; border:1px solid rgba(255,255,255,.08);
+  border-radius:12px; color:var(--muted);
+  font-family:'DM Sans',sans-serif; font-size:13px; font-weight:300;
+  cursor:pointer; transition:border-color .2s,color .2s;
+}
+.cta-skip:hover { border-color:rgba(255,255,255,.15); color:rgba(255,255,255,.45); }
+
+/* urgency strip */
+.urgency-strip {
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  background:rgba(239,68,68,.06); border:1px solid rgba(239,68,68,.14);
+  border-radius:10px; padding:11px 16px; margin-top:16px;
+  font-size:12px; color:rgba(239,68,68,.7); font-weight:300;
+}
+.urgency-strip strong { color:#FCA5A5; font-weight:600; }
+
+/* ─────────────────────────────────────────
+   FAQ
+───────────────────────────────────────── */
+.faq-section { padding: 40px 0 60px; }
+.faq-section h3 { font-family:'Syne',sans-serif; font-size:20px; font-weight:700; margin-bottom:20px; letter-spacing:-.01em; }
+.faq-list { display:flex; flex-direction:column; gap:8px; }
+.faq-item {
+  background:var(--glass); border:1px solid var(--gb);
+  border-radius:13px; overflow:hidden;
+}
+.faq-q {
+  padding:16px 18px; cursor:pointer; display:flex; justify-content:space-between; align-items:center;
+  font-size:14px; color:rgba(255,255,255,.72); font-weight:400;
+  user-select:none; transition:color .2s;
+}
+.faq-q:hover { color:var(--white); }
+.faq-q .faq-arrow { font-size:12px; color:var(--muted); transition:transform .3s; flex-shrink:0; margin-left:12px; }
+.faq-item.open .faq-q .faq-arrow { transform:rotate(180deg); }
+.faq-a {
+  max-height:0; overflow:hidden; transition:max-height .35s ease, padding .35s ease;
+  font-size:13px; color:var(--muted); font-weight:300; line-height:1.65;
+  padding:0 18px;
+}
+.faq-item.open .faq-a { max-height:200px; padding:0 18px 16px; }
+
+/* ─────────────────────────────────────────
+   FOOTER
+───────────────────────────────────────── */
+footer { border-top:1px solid var(--gb); padding:24px 20px; text-align:center; font-size:12px; color:var(--muted); font-weight:300; position:relative; z-index:1; }
+
+/* ─────────────────────────────────────────
+   NOTIFICATION
+───────────────────────────────────────── */
+.notif {
+  position:fixed;bottom:22px;left:20px;max-width:250px;z-index:200;
+  background:rgba(10,10,14,.97);border:1px solid rgba(255,255,255,.08);
+  border-radius:14px;padding:12px 14px;
+  display:flex;align-items:flex-start;gap:10px;
+  box-shadow:0 8px 32px rgba(0,0,0,.6);backdrop-filter:blur(20px);
+  transform:translateX(-300px);opacity:0;
+  transition:transform .45s cubic-bezier(.34,1.36,.64,1),opacity .35s ease;
+  pointer-events:none;
+}
+.notif.show{transform:translateX(0);opacity:1;}
+.notif.hide{transform:translateX(-30px);opacity:0;transition:transform .3s ease,opacity .25s ease;}
+.ni{font-size:17px;flex-shrink:0;margin-top:1px;}
+.nt{font-size:11px;color:rgba(255,255,255,.55);line-height:1.45;font-weight:300;}
+.nt strong{color:rgba(255,255,255,.85);font-weight:500;}
+.ntm{font-size:9px;color:var(--muted);margin-top:3px;}
+.nd{position:absolute;top:12px;right:12px;width:5px;height:5px;border-radius:50%;background:#FF4D8D;box-shadow:0 0 5px #FF4D8D;animation:blink 1.4s ease infinite;}
+
+/* ─────────────────────────────────────────
+   STICKY CTA
+───────────────────────────────────────── */
+.sticky-bar {
+  position:fixed;bottom:0;left:0;right:0;z-index:100;
+  background:rgba(10,10,12,.97);border-top:1px solid rgba(255,255,255,.07);
+  backdrop-filter:blur(24px);padding:12px 20px;
+  display:flex;align-items:center;justify-content:center;gap:14px;
+  transform:translateY(100%);transition:transform .5s cubic-bezier(.16,1,.3,1);
+}
+.sticky-bar.visible{transform:translateY(0);}
+.sb-text{font-size:12px;color:rgba(255,255,255,.45);font-weight:300;white-space:nowrap;display:none;}
+@media(min-width:480px){.sb-text{display:block;}}
+.sb-text strong{color:rgba(255,255,255,.7);font-weight:500;}
+.sb-btn {
+  padding:12px 24px;
+  background:linear-gradient(135deg,#F59E0B,#E8407A);
+  border:none;border-radius:12px;color:#fff;
+  font-family:'Syne',sans-serif;font-size:14px;font-weight:700;
+  cursor:pointer;white-space:nowrap;position:relative;overflow:hidden;
+  box-shadow:0 4px 20px rgba(245,158,11,.3);
+  transition:transform .18s,box-shadow .18s;
+}
+.sb-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.14),transparent);}
+.sb-btn:hover{transform:translateY(-1px);box-shadow:0 8px 30px rgba(245,158,11,.4);}
+.sb-skip{font-size:12px;color:var(--muted);cursor:pointer;text-decoration:underline;text-decoration-color:transparent;transition:color .2s,text-decoration-color .2s;}
+.sb-skip:hover{color:rgba(255,255,255,.4);text-decoration-color:rgba(255,255,255,.2);}
+</style>
+</head>
+<body>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<!-- NOTIFICATION -->
+<div class="notif" id="notif">
+  <span class="ni" id="ni"></span>
+  <div><p class="nt" id="nt"></p><p class="ntm" id="ntm"></p></div>
+  <span class="nd"></span>
+</div>
+
+<!-- STICKY BAR -->
+<div class="sticky-bar" id="stickyBar">
+  <p class="sb-text"><strong>Pack 12 Guias</strong> · oferta exclusiva pós-compra</p>
+  <button class="sb-btn" onclick="goCheckout()">Adicionar ao meu acesso →</button>
+  <span class="sb-skip" onclick="goSkip()">pular</span>
+</div>
+
+<!-- ══ TOP BANNER ══ -->
+<div class="top-banner">
+  <p><span class="pulse-dot"></span><strong>Oferta exclusiva</strong> · disponível apenas agora · para você que entrou no Conversa Alpha</p>
+</div>
+
+<!-- ══ CONFIRM BAR ══ -->
+<div class="confirm-bar">
+  <div class="check-icon">✓</div>
+  <p><strong>Conversa Alpha: Anti-Vácuo</strong> foi desbloqueado com sucesso — obrigado!</p>
+</div>
+
+<!-- ══════════════════════════════════════
+     HERO
+══════════════════════════════════════ -->
+<section class="hero">
+  <div class="w">
+    <div class="reveal">
+      <div class="hero-eyebrow">
+        <span class="dot"></span>
+        Oferta especial pós-compra · 1 vez apenas
+      </div>
+      <h1>
+        Beleza… agora que você sabe<br>puxar e manter a conversa…
+        <span class="line2">você vai saber sustentar isso ao vivo?</span>
+      </h1>
+      <p class="hero-sub">
+        A maioria dos caras até consegue chegar lá…<br>
+        mas trava na hora que realmente importa.
+      </p>
+      <div class="urgency-pill">
+        ⏳ <span><strong>Essa oferta aparece apenas agora.</strong> Não volta depois.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     BRIDGE
+══════════════════════════════════════ -->
+<section class="bridge-section">
+  <div class="w">
+    <div class="reveal bridge-card">
+      <p>Você acabou de aprender a <strong>conduzir uma conversa.</strong></p>
+      <p>Mas atração não termina na mensagem.</p>
+      <p>Existe uma diferença enorme entre um cara que <em>sabe conversar</em> e um cara que <strong>sabe se portar quando o momento chega.</strong> Confiança, presença, controle — isso não vem automático.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     PRODUCT REVEAL
+══════════════════════════════════════ -->
+<section class="product-section">
+  <div class="w">
+    <div class="reveal">
+      <div class="divider" style="width:40px;height:2px;background:linear-gradient(90deg,#F59E0B,#E8407A);border-radius:2px;margin:0 auto 24px;"></div>
+      <p class="product-tag">Pack exclusivo · 12 guias</p>
+      <h2><span class="gold-text">Macho Alpha</span><br>na Prática</h2>
+      <p class="pack-label">PACK 12 GUIAS</p>
+      <p class="product-desc">Um conjunto direto ao ponto que desenvolve confiança, presença e controle em situações reais — sem enrolação, sem papo motivacional vazio.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     MODULES
+══════════════════════════════════════ -->
+<section class="modules-section">
+  <div class="w">
+    <div class="reveal">
+
+      <!-- BASE -->
+      <div class="modules-block">
+        <p class="modules-block-title">Fundação</p>
+        <div class="module-list">
+          <div class="module-item">
+            <div class="mi-icon">📘</div>
+            <div class="mi-text">
+              <p class="mi-title">Mentalidade de confiança</p>
+              <p class="mi-count">Guia 1 · base do comportamento</p>
+            </div>
+          </div>
+          <div class="module-item">
+            <div class="mi-icon">📘</div>
+            <div class="mi-text">
+              <p class="mi-title">Como agir sem parecer inseguro</p>
+              <p class="mi-count">Guia 2 · postura e presença</p>
+            </div>
+          </div>
+          <div class="module-item">
+            <div class="mi-icon">📘</div>
+            <div class="mi-text">
+              <p class="mi-title">Como manter presença e controle</p>
+              <p class="mi-count">Guia 3 · domínio emocional</p>
+            </div>
+          </div>
+          <div class="module-item">
+            <div class="mi-icon">📘</div>
+            <div class="mi-text">
+              <p class="mi-title">Como não travar em momentos importantes</p>
+              <p class="mi-count">Guia 4 · desbloqueio de ansiedade</p>
+            </div>
+          </div>
+          <div class="module-item">
+            <div class="mi-icon">📘</div>
+            <div class="mi-text">
+              <p class="mi-title">Comportamentos que aumentam atração</p>
+              <p class="mi-count">Guia 5 · padrões de atração</p>
+            </div>
+          </div>
+          <div class="module-item">
+            <div class="mi-icon">📘</div>
+            <div class="mi-text">
+              <p class="mi-title">Erros que fazem perder o interesse</p>
+              <p class="mi-count">Guia 6 · o que evitar</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ADVANCED -->
+      <div class="modules-block">
+        <p class="modules-block-title advanced">🔥 Parte avançada (diferencial)</p>
+        <div class="module-list">
+          <div class="module-item hot">
+            <div class="mi-icon">📘</div>
+            <div class="mi-text">
+              <p class="mi-title">Como criar tensão e conexão antes do momento íntimo</p>
+              <p class="mi-count">Guia 7 · condução e clima</p>
+            </div>
+            <span class="mi-badge">+18</span>
+          </div>
+          <div class="module-item hot">
+            <div class="mi-icon">📘</div>
+            <div class="mi-text">
+              <p class="mi-title">Como conduzir com mais segurança e naturalidade</p>
+              <p class="mi-count">Guia 8 · controle no momento real</p>
+            </div>
+            <span class="mi-badge">+18</span>
+          </div>
+          <div class="module-item hot">
+            <div class="mi-icon">📘</div>
+            <div class="mi-text">
+              <p class="mi-title">Técnicas de envolvimento e ritmo</p>
+              <p class="mi-count">Guia 9 · presença e ritmo</p>
+            </div>
+            <span class="mi-badge">+18</span>
+          </div>
+          <div class="module-item hot">
+            <div class="mi-icon">📘</div>
+            <div class="mi-text">
+              <p class="mi-title">Como não parecer perdido ou inseguro</p>
+              <p class="mi-count">Guia 10 · postura no momento íntimo</p>
+            </div>
+            <span class="mi-badge">+18</span>
+          </div>
+          <div class="module-item hot">
+            <div class="mi-icon">📘</div>
+            <div class="mi-text">
+              <p class="mi-title">O que faz a experiência ser marcante (sem precisar forçar)</p>
+              <p class="mi-count">Guia 11 · o que realmente importa</p>
+            </div>
+            <span class="mi-badge">+18</span>
+          </div>
+          <div class="module-item hot">
+            <div class="mi-icon">📘</div>
+            <div class="mi-text">
+              <p class="mi-title">Erros silenciosos que quebram o clima</p>
+              <p class="mi-count">Guia 12 · o que nunca fazer</p>
+            </div>
+            <span class="mi-badge">+18</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     PROMISE
+══════════════════════════════════════ -->
+<section class="promise-section">
+  <div class="w">
+    <div class="reveal">
+      <div class="promise-grid">
+        <div class="promise-card">
+          <span class="pc-icon">🧠</span>
+          <p class="pc-title">Mais segurança pessoal</p>
+          <p class="pc-desc">Você age sem hesitar nos momentos que importam</p>
+        </div>
+        <div class="promise-card">
+          <span class="pc-icon">⚡</span>
+          <p class="pc-title">Mais controle emocional</p>
+          <p class="pc-desc">Sem travar, sem entrar em pânico, sem estragar</p>
+        </div>
+        <div class="promise-card">
+          <span class="pc-icon">🎯</span>
+          <p class="pc-title">Menos ansiedade</p>
+          <p class="pc-desc">O que era pesado começa a parecer natural</p>
+        </div>
+        <div class="promise-card">
+          <span class="pc-icon">🔥</span>
+          <p class="pc-title">Mais naturalidade</p>
+          <p class="pc-desc">Nada de roteiro. Você age como você mesmo — só melhor</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     BELIEF BREAK
+══════════════════════════════════════ -->
+<section class="belief-section">
+  <div class="w">
+    <div class="reveal belief-card">
+      <p>"Não é sobre fazer algo mirabolante."</p>
+      <p>"É sobre <span class="grad-text">não travar e não estragar o momento.</span>"</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     CONTRAST
+══════════════════════════════════════ -->
+<section class="contrast-section">
+  <div class="w">
+    <div class="reveal">
+      <div class="contrast-grid">
+        <div class="cc bad">
+          <p class="cc-label">❌ Sem o pack</p>
+          <h4>Sabe conversar…</h4>
+          <p>Mas trava na hora que importa. Perde o timing, parece inseguro, estraga o que poderia ter sido bom</p>
+        </div>
+        <div class="cc good">
+          <p class="cc-label">✓ Com o pack</p>
+          <h4>Sabe conduzir</h4>
+          <p>Presença, controle, naturalidade — do início ao fim, sem precisar improvisar no escuro</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     OFFER
+══════════════════════════════════════ -->
+<section class="offer-section" id="offerSection">
+  <div class="w">
+    <div class="reveal offer-card">
+
+      <div class="offer-exclusive">
+        <span class="dot"></span>
+        Como você já entrou no Conversa Alpha…
+      </div>
+
+      <h3>Adicione o Pack 12 Guias<br>por uma <span class="gold-text">condição especial</span></h3>
+      <p class="offer-desc">Acesso completo a todos os guias — fundação + parte avançada (+18). Sem mensalidade, sem enrolação.</p>
+
+      <div class="price-block">
+        <span class="price-original">R$ 97</span>
+        <span class="price-arrow">→</span>
+        <div class="price-current">
+          <span class="price-tag gold-text">R$ 37</span>
+          <span class="price-once">pagamento único</span>
+        </div>
+        <span class="price-save">você economiza R$ 60</span>
+      </div>
+
+      <div class="offer-includes">
+        <div class="oi-item"><span class="oi-check">✓</span>12 guias completos (fundação + avançado)</div>
+        <div class="oi-item"><span class="oi-check">✓</span>Conteúdo +18 desbloqueado</div>
+        <div class="oi-item"><span class="oi-check">✓</span>Acesso imediato junto ao Conversa Alpha</div>
+        <div class="oi-item"><span class="oi-check">✓</span>Funciona no celular</div>
+        <div class="oi-item"><span class="oi-check">✓</span>Acesso vitalício</div>
+      </div>
+
+      <button class="cta-primary" onclick="goCheckout()">
+        Adicionar ao meu acesso →
+      </button>
+      <p class="cta-guarantee">🔒 Compra segura · Mesmo checkout</p>
+
+      <button class="cta-skip" onclick="goSkip()">
+        Não, quero continuar sem isso
+      </button>
+
+      <div class="urgency-strip">
+        ⏳ <span><strong>Essa oferta aparece apenas agora.</strong> Se você fechar, não volta.</span>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     FAQ
+══════════════════════════════════════ -->
+<section class="faq-section">
+  <div class="w">
+    <div class="reveal">
+      <h3>Dúvidas rápidas</h3>
+      <div class="faq-list">
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">Preciso ter experiência pra aproveitar?<span class="faq-arrow">▼</span></div>
+          <div class="faq-a">Não. Os guias foram feitos pra quem está começando a entender o jogo — não pra quem já sabe tudo. Quanto antes você entender esses padrões, melhor.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">Isso funciona junto com o Conversa Alpha?<span class="faq-arrow">▼</span></div>
+          <div class="faq-a">Sim — e foi feito pra isso. O Conversa Alpha te ensina a conduzir a conversa. O Pack te prepara pro que vem depois. Os dois se complementam de forma direta.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">Como acesso depois da compra?<span class="faq-arrow">▼</span></div>
+          <div class="faq-a">Acesso imediato. Você recebe junto com o Conversa Alpha, no mesmo lugar, na mesma hora.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">Esse preço vai aparecer de novo?<span class="faq-arrow">▼</span></div>
+          <div class="faq-a">Essa condição existe porque você acabou de comprar o Conversa Alpha. Fora daqui o preço é cheio. Se fechar essa página, a oferta some.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>© 2025 Conversa Alpha · Todos os direitos reservados</p>
+</footer>
+
+<script>
+  /* REVEAL */
+  const els = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver(e=>{ e.forEach(x=>{ if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target);} }); },{threshold:.1});
+  els.forEach(el=>io.observe(el));
+
+  /* STICKY BAR after scroll */
+  window.addEventListener('scroll',()=>{
+    const bar = document.getElementById('stickyBar');
+    if(window.scrollY > 400) bar.classList.add('visible');
+  });
+
+  /* FAQ */
+  function toggleFaq(el){
+    const item = el.closest('.faq-item');
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('open'));
+    if(!isOpen) item.classList.add('open');
+  }
+
+  /* NOTIFICATIONS */
+  const notifs=[
+    {i:'🔥',t:'<strong>Pedro de SP</strong> acabou de adicionar o Pack ao acesso',tm:'agora'},
+    {i:'💬',t:'<strong>38 pessoas</strong> compraram o Pack hoje',tm:'hoje'},
+    {i:'⚡',t:'<strong>Diego</strong> desbloqueou a parte avançada',tm:'há 4 min'},
+    {i:'🏆',t:'<strong>Pack + Alpha</strong> é a combo mais popular essa semana',tm:'esta semana'},
+  ];
+  let ni=0;
+  const nel=document.getElementById('notif');
+  function showNotif(){
+    const n=notifs[ni%notifs.length];ni++;
+    document.getElementById('ni').textContent=n.i;
+    document.getElementById('nt').innerHTML=n.t;
+    document.getElementById('ntm').textContent=n.tm;
+    nel.classList.remove('hide');nel.classList.add('show');
+    setTimeout(()=>{nel.classList.remove('show');nel.classList.add('hide');},3800);
+    setTimeout(showNotif,7000+Math.random()*5000);
+  }
+  setTimeout(showNotif,3500);
+
+  /* ACTIONS */
+  function goCheckout(){
+    // window.location.href = 'https://seu-checkout-upsell.com';
+    alert('Redirecionar para o checkout do upsell aqui.');
+  }
+  function goSkip(){
+    // window.location.href = 'obrigado.html';
+    alert('Redirecionar para página de obrigado / área de membros aqui.');
+  }
+</script>
+</body>
+</html>
